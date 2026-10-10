@@ -21,7 +21,7 @@ let toastT;function toast(m){toastEl.textContent=m;toastEl.classList.add("show")
 function removePart(id){
   if(st.slot[id]==="empty")return;
   const real=st.F[id]||(id==="F1"&&st.fuse?"open":null),ins=st.inst[id];
-  st.trash.unshift({id,l:ins?ins.l:P[id][1],bad:ins&&ins.r!=="ok"&&ins.r!=="ok2"?"wrong":real,orig:!ins,checked:false});
+  const ph=partPhys(id);st.trash.unshift({id,l:ins?ins.l:P[id][1],c:ph.cat,mode:ph.mode,bad:ins&&ins.r!=="ok"&&ins.r!=="ok2"?"wrong":real,orig:!ins,checked:false});if(ms&&ms.id===id){ms.id=null;drawProbes();renderMeter()}
   delete st.inst[id];delete st.later[id];delete st.sec[id];if(id==="F1"){st.fuse=false;st.bug=false}
   Object.keys(st.casc).forEach(k=>{if(k.startsWith(id))delete st.casc[k]});
   const mm=missing(id);if(mm)st.F[id]=mm;else delete st.F[id];
@@ -33,7 +33,7 @@ function placeItem(id,it){
   const opt=f||(it.c===need?{l:it.l,r:"same",m:mm,why:"Тип детали тот, но номинал или модель не подходят: режим цепи нарушен."}
     :{l:it.l,r:"same",m:mm,why:`Здесь должен стоять ${CATN[need]}, а поставлен ${CATN[it.c]}. Он не может выполнить эту работу — цепь не работает.`});
   st.trash=st.trash.filter(x=>!(x.id===id&&x.orig&&!x.bad&&opt.r==="ok"&&false));
-  install(id,opt);game.moves++;pick(id);renderTrash();
+  install(id,Object.assign({c:it.c},opt));game.moves++;pick(id);renderTrash();if(ms&&ms.id===id)renderMeter();
 }
 
 /* drag & drop */
@@ -79,8 +79,9 @@ function renderTrash(){
   const L=$("trashL");
   if(!st.trash.length){L.innerHTML=`<li class="hint">Пусто. Перетащите сюда деталь со схемы.</li>`;return}
   L.innerHTML=st.trash.map((x,i)=>`<li><div><b class="mono">${x.id}</b> <span class="mono dim">${x.l}</span></div>${x.checked?`<div class="res ${x.bad?"b":"g"}">${x.bad==="wrong"?"Это была неподходящая деталь.":x.bad?"Неисправна: "+ML[x.bad].toLowerCase()+". Поломка найдена!":"Исправна — её можно было не выпаивать."}</div>`:""}
-    <div class="ta">${x.checked?"":`<button type="button" data-c="${i}">Проверить мультиметром</button>`}${x.orig&&!x.bad&&st.slot[x.id]==="empty"?`<button type="button" data-b="${i}">Вернуть на место</button>`:""}</div></li>`).join("");
+    <div class="ta">${ms&&ms.tool!=="hand"?`<button type="button" class="mb" data-mt="${i}">Измерить: ${TOOLS[ms.tool]}</button>`:""}${x.checked?"":`<button type="button" data-c="${i}">Узнать результат</button>`}${x.orig&&!x.bad&&st.slot[x.id]==="empty"?`<button type="button" data-b="${i}">Вернуть на место</button>`:""}</div></li>`).join("");
   L.querySelectorAll("[data-c]").forEach(b=>b.addEventListener("click",()=>{const x=st.trash[+b.dataset.c];x.checked=true;log(`${x.id} проверен мультиметром: ${x.bad==="wrong"?"неподходящая деталь":x.bad?"неисправен ("+ML[x.bad].toLowerCase()+")":"исправен"}.`,!!x.bad);renderTrash()}));
+  L.querySelectorAll("[data-mt]").forEach(b=>b.addEventListener("click",()=>measureTrash(+b.dataset.mt)));
   L.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>{const x=st.trash[+b.dataset.b];st.trash.splice(+b.dataset.b,1);const ok=kitFor(x.id).find(o=>o.r==="ok");install(x.id,ok);game.moves++;pick(x.id);renderTrash()}));
 }
 

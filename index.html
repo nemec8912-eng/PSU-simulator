@@ -44,7 +44,27 @@
 
   <div class="work">
     <div class="board" id="board"><svg id="sch" viewBox="0 -4 1796 1108" role="img" aria-label="Принципиальная схема блока питания"></svg></div>
-    <aside class="side" aria-label="Корзина и каталог деталей">
+    <aside class="side" aria-label="Приборы, корзина и каталог деталей">
+      <div class="tools" id="tools">
+        <div class="th"><b>Приборы</b><span>выберите прибор и нажмите на деталь</span></div>
+        <div class="tbtns">
+          <button type="button" data-t="hand" aria-pressed="true">Рука</button><button type="button" data-t="dmm" aria-pressed="false">Мультиметр</button>
+          <button type="button" data-t="esr" aria-pressed="false">ESR-метр</button><button type="button" data-t="osc" aria-pressed="false">Осциллограф</button>
+          <button type="button" data-t="tst" aria-pressed="false">Тестер деталей</button>
+        </div>
+        <div class="dmodes" id="dmodes" hidden>
+          <button type="button" data-m="vdc" aria-pressed="true">V⎓</button><button type="button" data-m="vac" aria-pressed="false">V~</button><button type="button" data-m="ohm" aria-pressed="false">Ω</button>
+          <button type="button" data-m="beep" aria-pressed="false">•)))</button><button type="button" data-m="diode" aria-pressed="false">▷|</button><button type="button" data-m="cap" aria-pressed="false">⊣⊢</button>
+        </div>
+        <div class="meter" id="meter" hidden>
+          <div class="mhead"><b id="mTool"></b><span id="mTgt"></span></div>
+          <div class="lcd2" id="mLcd"><span id="mV">- - -</span><small id="mU"></small></div>
+          <div class="osc" id="mOsc" hidden><canvas id="oscC"></canvas></div>
+          <p class="mn" id="mN"></p>
+          <ul class="mrows" id="mRows"></ul>
+          <button type="button" id="discharge">Разрядить C1 резистором</button>
+        </div>
+      </div>
       <div class="trash" id="trash"><div class="th"><b>Корзина</b><span>перетащите сюда деталь со схемы</span></div><ul id="trashL"></ul></div>
       <div class="cat">
         <div class="th"><b>Каталог деталей</b><span>перетащите на пустое место</span></div>
@@ -85,6 +105,7 @@
 <script src="js/06-loop.js"></script>
 <script src="js/07-kit.js"></script>
 <script src="js/08-workshop.js"></script>
-<script src="js/09-ui.js"></script>
+<script src="js/09-instruments.js"></script>
+<script src="js/10-ui.js"></script>
 </body>
 </html>

@@ -43,7 +43,7 @@ st.inst={};st.later={};st.bug=false;
 function install(id,opt){
   delete st.F[id];delete st.sec[id];delete st.later[id];if(id==="F1"){st.fuse=false;st.bug=false}if(id==="CY2")st.rcd=false;
   Object.keys(st.casc).forEach(k=>{if(k.startsWith(id))delete st.casc[k]});
-  st.inst[id]=opt;st.slot[id]={l:opt.l};
+  st.inst[id]=opt;st.slot[id]={l:opt.l,c:opt.c||catOf(id)};
   if((opt.r==="same"||opt.r==="now")&&opt.m)st.F[id]=opt.m;
   if(opt.r==="later")st.later[id]={t:opt.s,m:opt.m,tg:opt.tg||id,tm:opt.tm||opt.m,msg:opt.why};
   if(opt.r==="bug")st.bug=true;
