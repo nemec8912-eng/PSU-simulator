@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Блок питания Samsung BN44</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Блок питания телевизора Samsung: полная схема</h1>
+      <p class="lead">Типовой блок Samsung серии BN44: фильтр → мост → корректор мощности (PFC) → дежурный источник 5 В → полумост LLC 13/24 В. Точки на проводах — это ток. Нажмите на любую деталь и выведите её из строя, чтобы увидеть, как ломается цепь.</p>
+    </div>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Управление">
+    <button id="bMode" type="button">Режим: обучение</button>
+    <span class="sep"></span>
+    <button id="bMains" type="button" class="on">Вилка в розетке</button>
+    <button id="bTv" type="button">Пульт: включить ТВ</button>
+    <span class="sep"></span>
+    <button id="bFixAll" type="button">Починить всё</button>
+    <label class="rng" for="spd">Скорость <input id="spd" type="range" min="10" max="200" value="100"></label>
+    <select id="pick" aria-label="Выбрать деталь"></select>
+    <div class="zoom"><button id="zOut" type="button" aria-label="Уменьшить">−</button><button id="zFit" type="button">По ширине</button><button id="zIn" type="button" aria-label="Увеличить">+</button></div>
+  </div>
+
+  <section class="card repair" id="repair" hidden aria-labelledby="rpT">
+    <div class="rp-head">
+      <h3 id="rpT">Ремонт</h3>
+      <select id="scSel" aria-label="Выбор задачи"></select>
+      <button id="scStart" type="button">Начать задачу заново</button>
+    </div>
+    <p class="complaint"><span class="kick">Жалоба владельца</span><span id="scText"></span></p>
+    <p class="hint">Найдите поломку: смотрите, докуда течёт ток и какие напряжения есть. Подозрительную деталь перетащите в корзину и проверьте мультиметром. Новую деталь перетащите из каталога на пустое место. Затем включите ТВ пультом.</p>
+    <div class="rp-act"><button id="hintB" type="button">Подсказка</button><button id="ansB" type="button">Показать ответ</button></div>
+    <ol class="hints" id="hints"></ol>
+    <div class="win" id="win" hidden></div>
+  </section>
+
+  <div class="work">
+    <div class="board" id="board"><svg id="sch" viewBox="0 -4 1796 1108" role="img" aria-label="Принципиальная схема блока питания"></svg></div>
+    <aside class="side" aria-label="Корзина и каталог деталей">
+      <div class="trash" id="trash"><div class="th"><b>Корзина</b><span>перетащите сюда деталь со схемы</span></div><ul id="trashL"></ul></div>
+      <div class="cat">
+        <div class="th"><b>Каталог деталей</b><span>перетащите на пустое место</span></div>
+        <input id="catQ" type="search" placeholder="Поиск: 10 кОм, PC817, 47 мкФ…" aria-label="Поиск детали">
+        <select id="catF" aria-label="Тип детали"></select>
+        <ul id="catL"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <div class="lower">
+    <section class="card" aria-live="polite">
+      <div class="kick" id="cId">Деталь</div>
+      <h2 id="cName">Нажмите на деталь на схеме</h2>
+      <p class="val" id="cVal"></p>
+      <div id="cBody"><p class="hint">Любую деталь можно вывести из строя: обрыв, пробой или высыхание. Схема покажет, где остановится ток, а здесь появятся объяснение, признаки и причина поломки. Чинить — только подходящей деталью из комплекта замены.</p></div>
+    </section>
+    <section class="card">
+      <h3>Что происходит с телевизором</h3>
+      <div class="tv">
+        <div class="screen" id="screen"><span>выключен</span></div>
+        <div><div class="led"><i id="led"></i><span id="ledT">светодиод дежурки</span></div><p class="see" id="see"></p></div>
+      </div>
+      <table class="rd" id="rd"></table>
+    </section>
+    <section class="card log">
+      <h3>Журнал событий</h3>
+      <ol id="log"></ol>
+    </section>
+  </div>
+  <p class="hint">Схема собрана по типовой архитектуре блоков Samsung BN44 (PFC + дежурка на ICE3BR0665J + LLC-контроллер FAN7621 с внешними ключами). Позиционные обозначения и номиналы типичные, у конкретной платы они отличаются.</p>
+</div>
+<script src="js/01-helpers.js"></script>
+<script src="js/02-parts.js"></script>
+<script src="js/03-schematic.js"></script>
+<script src="js/04-render.js"></script>
+<script src="js/05-sim.js"></script>
+<script src="js/06-loop.js"></script>
+<script src="js/07-kit.js"></script>
+<script src="js/08-workshop.js"></script>
+<script src="js/09-ui.js"></script>
+</body>
+</html>
