@@ -215,3 +215,49 @@ body.thermo #sch{background:#0c1220}
   #catL{max-height:40vh}
 }
 body.thermo .ptitle{fill:#cfd8e3}
+/* ---- выбор платы ---- */
+.boards{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.boards a{font-size:13.5px;font-weight:600;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.boards a[aria-current="page"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.boards a:hover{border-color:var(--muted)}
+/* ---- нагрузка адаптера: светодиодная лента ---- */
+.led i.green{background:#2fb344;border-color:#2fb344;box-shadow:0 0 8px #2fb344}
+.screen.strip{background:#14181d;display:grid;place-items:center;gap:6px;align-content:center}
+.leds{display:flex;gap:5px;--b:0}
+.leds i{width:8px;height:8px;border-radius:50%;background:rgb(255 244 214 / calc(.08 + var(--b)*.92));box-shadow:0 0 calc(var(--b)*10px) calc(var(--b)*3px) rgb(255 220 150 / calc(var(--b)*.9))}
+.screen .sl{font-size:11px;color:#9fb3c6}
+/* ---- вид печатной платы ---- */
+#pcb{display:block}
+.pcbBoard{fill:#1f5e3a;stroke:#123d25;stroke-width:3}
+.region{fill:#236b42;stroke:#4f9a6c;stroke-width:1;stroke-dasharray:5 4}
+.region.cold{fill:#2a7550}
+.rtitle{font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;fill:#e8f3ea}
+.rnote{font-family:var(--f-body);font-size:11px;fill:#cfe6d6}
+.silk{font-family:var(--f-mono);font-size:9.5px;font-weight:700;fill:#f4f8f2}
+.silkv{font-family:var(--f-mono);font-size:8px;fill:#cfe0d2}
+.silkv.other{fill:#ffd166}
+.pad{fill:#d8c27a}
+.pfp .hit{fill:transparent;stroke:none}
+.pfp:hover .hit{fill:rgba(255,255,255,.12)}
+.pfp.sel .hit{fill:rgba(92,155,255,.22);stroke:#8cb8ff;stroke-width:1.5;stroke-dasharray:3 3}
+.pfp.drop .hit{fill:rgba(60,207,142,.35);stroke:#3ccf8e;stroke-width:2}
+.pfp.empty .body{opacity:.15}
+.pfp.empty .hit{stroke:#8cb8ff;stroke-width:1.5;stroke-dasharray:4 3}
+.res{fill:#d9c49a;stroke:#8a7650}.band{fill:#7a4a20}.b1{fill:#111}.b2{fill:#c0392b}.b3{fill:#c9a227}
+.ecap{fill:#24325e;stroke:#121a33}.stripe{fill:#9aa7c9;opacity:.7}.vent{stroke:#9aa7c9;stroke-width:1;fill:none}
+.dome{fill:none;stroke:none}
+.pfp.bulge .dome{fill:url(#none);fill:#6a5a3a;opacity:.85;stroke:#d9b26b;stroke-width:2}
+.film{fill:#e2c044;stroke:#9c8424}.disc{fill:#d9782d;stroke:#8f4a14}
+.dio{fill:#1c1c1c;stroke:#000}.dband{fill:#ddd}
+.ledp{fill:#5bd36b;stroke:#2a7a36}
+.to92{fill:#222;stroke:#000}
+.to220{fill:#262626;stroke:#000}.sink{fill:#b9c2cc;stroke:#7d8791}.hole{fill:#888}.leg{fill:#c9c9c9}
+.dip{fill:#202020;stroke:#000}.opto{fill:#f2f2f2;stroke:#aaa}
+.glass{fill:rgba(220,235,245,.7);stroke:#9fb3c6}.cap{fill:#c9cdd2}.wire{stroke:#555;stroke-width:1}
+.pfp.blown .glass{fill:#2b2b2b}.pfp.blown .wire{stroke:#2b2b2b}
+.ntc{fill:#2c6b3d;stroke:#123}.var{fill:#2f5fb3;stroke:#183a75}
+.sip{fill:#1d1d1d;stroke:#000}.mark{font-family:var(--f-mono);font-size:7px;fill:#bbb}
+.core{fill:#3a3a3a}.bobbin{fill:#e8e2d0;stroke:#9a9070}.tape{fill:#e6c64a}
+.tor{fill:#3b3b3b;stroke:#b07a3a;stroke-width:3}.torh{fill:#1f5e3a}
+.char{fill:#1a1a1a;opacity:0}.pfp.burnt .char{opacity:.75}.pfp.burnt .res{fill:#5a4630}
+.crack{fill:none;stroke:#f2f2f2;stroke-width:1.4;opacity:0}.pfp.cracked .crack{opacity:.9}

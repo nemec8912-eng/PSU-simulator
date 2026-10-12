@@ -1,8 +1,9 @@
 /* extras: thermal camera, lamp, lab PSU, sounds, random & chain tasks, score, history, save */
 
 /* ---------- storage helpers ---------- */
-const store={get(k,d){try{const v=localStorage.getItem("psu."+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
-  set(k,v){try{localStorage.setItem("psu."+k,JSON.stringify(v))}catch(e){}}};
+const skey=k=>"psu."+(BOARD.id==="samsung"||k==="sound"||k==="lamp"?"":BOARD.id+".")+k;
+const store={get(k,d){try{const v=localStorage.getItem(skey(k));return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(skey(k),JSON.stringify(v))}catch(e){}}};
 
 /* ---------- touch: tap = select / measure ---------- */
 let lastPT="mouse";
@@ -15,27 +16,6 @@ TOOLS.thermo="Тепловизор";
 const heatG=el("g",{class:"heat","aria-hidden":"true"});svg.insertBefore(heatG,probeG);
 const heatT=el("g",{class:"heatT","aria-hidden":"true"});svg.insertBefore(heatT,probeG);
 let heatSpots=null;
-function heatTarget(id){
-  const s=S,F=st.F;if(st.slot[id]==="empty")return 25;
-  let t={TH1:s.inPath&&(s.sbyOn||s.llcOut)?(s.llcOut?82:38):25,BD1:s.bridgeOn||s.llcOut?(s.llcOut?55:32):25,Q1:s.pfcSw?58:25,D1:s.pfcBoost?52:25,LP1:s.pfcBoost?47:25,R5:s.pfcSw?38:25,
-    IC2:s.sbyOn?47:25,R11:s.sbyOn?55:25,T1:s.sbyOn?38:25,D5:s.sbyOn?42:25,Q4:s.llcOut?52:25,Q5:s.llcOut?52:25,T2:s.llcOut?48:25,C11:s.llcOut?40:25,
-    D7:s.llcOut?62:25,D9:s.llcOut?50:25,R26:s.v13>5?44:25,IC1:s.pfcIC?35:25,IC3:s.llcRun?37:25,C1:s.llcOut?38:(s.bulk>100?28:25),R2:s.pre?30:25,R1:s.pre?30:25}[id]||25;
-  const f=F[id];
-  if(s.surge&&f==="short")t=150;
-  if(s.surge&&(id==="TH1"))t=Math.max(t,60);
-  if(f==="dry"&&(s.sbyOn||s.llcOut))t=Math.max(t,52);
-  if(id==="R11"&&is("D3","short")&&s.sbyOn)t=165;
-  if(id==="Q1"&&is("R4","open")&&s.pfcSw)t=108;
-  if((id==="Q4"||id==="Q5")&&is("C11","short")&&s.llcRun)t=118;
-  if(f==="short"&&["D7","D9","C13","C14","C15"].includes(id)&&s.llcRun)t=96;
-  if(f==="short"&&["D5","C7","C8"].includes(id)&&s.sbyOn)t=88;
-  if(id==="IC2"&&s.sbyMode==="hic")t=Math.max(t,41);
-  if(st.later[id]&&s.mains)t=Math.max(t,98);
-  if(s.lab&&s.lab.sh.includes(id))t=25+s.lab.i*115;
-  if(s.lab&&s.lab.rail==="vccm"&&id==="ZD1"&&st.lab.v>18&&!s.lab.sh.length)t=25+s.lab.i*90;
-  if(s.lab&&s.lab.rail==="vccs"&&id==="R12"&&is("D4","short"))t=25+s.lab.i*90;
-  return t;
-}
 setInterval(()=>{if(!S||S.t==null)return;Object.keys(P).forEach(id=>{const a=st.temp[id]??25,b=heatTarget(id);st.temp[id]=a+(b-a)*(b>a?.12:.05)});
   if(ms.tool==="thermo")drawHeat()},100);
 function heatColor(t){const st_=[[25,[40,70,190]],[38,[30,170,200]],[50,[60,190,90]],[65,[250,200,40]],[85,[250,120,30]],[110,[225,40,40]],[150,[255,235,235]]];
@@ -109,24 +89,7 @@ setInterval(()=>{const s=S;if(!s||s.t==null)return;
 const _measureAt=measureAt;
 measureAt=function(id){_measureAt(id);if(ms.tool==="dmm"&&ms.mode==="beep"){const r=measure();if(r&&r.u==="Ω")SND.beep()}};
 
-/* ---------- chain scenarios ---------- */
-SCEN.push(
- {t:"Цепочка: снова хлопок через секунды",chain:1,c:"«Уже меняли микросхему дежурки и предохранитель. Включили — через несколько секунд снова хлопок».",F:{D3:"open",IC2:"short"},fuse:true,
-  h:["Хлопок повторяется после замены — значит, есть причина, которая убивает IC2. Одной замены IC2 мало.","Что защищает ключ IC2 от выбросов на стоке? Посмотрите снаббер: D3, R11, C5.","Проверьте D3 в режиме диода или тестером после выпайки."],a:"IC2 пробит, F1 сгорел. Причина — оборван диод снаббера D3. Менять D3, IC2 и F1."},
- {t:"Цепочка: ключ PFC горит повторно",chain:1,c:"«В мастерской поменяли транзистор и предохранитель. ТВ поработал несколько секунд после включения с пульта — и опять всё сгорело».",F:{R4:"open",Q1:"short",R5:"open"},fuse:true,
-  h:["Пробит Q1 и сгорел F1, но Q1 сгорает повторно — значит, его убивает что-то в цепи затвора.","Если затвор «висит» без резистора на землю, ключ приоткрывается и перегревается. Тепловизор покажет перегрев Q1 до пробоя.","Проверьте R3, R4 и шунт R5."],a:"Q1 пробит, R5 оборван, F1 сгорел. Причина — обрыв R4 (затвор–исток Q1). Менять Q1, R5, R4 и F1."},
- {t:"Цепочка: LLC сгорает при включении",chain:1,c:"«Дежурка работает. При включении с пульта хлопок. Поменяли верхний транзистор — опять то же».",F:{C11:"short",Q4:"short"},fuse:true,
-  h:["Пробит Q4 — но почему он горит снова? Ищите причину в резонансном контуре.","Если резонансный конденсатор пробит, ключи работают без резонанса и перегружаются.","Проверьте C11 мультиметром (Ω) или ESR-метром."],a:"Пробит C11 — из-за этого пробит Q4 и сгорел F1. Менять C11, Q4, F1."},
- {t:"Цепочка: тёмный резистор снаббера",chain:1,c:"«Работает несколько секунд, потом хлопок и тишина». Возле радиатора потемневший резистор.",F:{D3:"short",R11:"open"},
-  h:["Потемневший резистор — признак перегрева. Почему он грелся?","R11 рассеивает энергию снаббера. Если диод снаббера пробит, через R11 идёт ток постоянно.","Проверьте D3. После его замены не забудьте R11 — и проверьте IC2."],a:"D3 пробит → R11 перегрелся и оборвался → через ~12 секунд пробьётся IC2. Менять D3 и R11 (и IC2 с F1, если успели сгореть)."},
- {t:"Цепочка: сгорает IC3",chain:1,c:"«Поменяли микросхему LLC — при включении щелчок, и снова не работает».",F:{D6:"short",IC3:"dead"},
-  h:["Новая IC3 умирает за долю секунды после старта — её убивает высокое напряжение.","Через какую цепь высокое напряжение со средней точки полумоста может попасть на питание IC3?","Проверьте диод бутстрепа D6 в обе стороны."],a:"D6 пробит — через него B+ попадает на питание IC3. Менять D6 и IC3."},
- {t:"Цепочка: диод PFC",chain:1,c:"«Хлопок при включении с пульта. Поменяли транзистор PFC и предохранитель — хлопок снова».",F:{D1:"open",Q1:"short"},fuse:true,
-  h:["Q1 пробивается повторно через 1–2 секунды работы PFC.","Если энергии дросселя некуда уйти, напряжение на стоке Q1 выбрасывает выше 600 В.","Проверьте диод PFC D1 в обе стороны."],a:"D1 оборван — из-за этого пробит Q1 и сгорел F1. Менять D1, Q1, F1."}
-);
-
 /* ---------- random tasks ---------- */
-const RANDOM_POOL=[["F1","open"],["RV1","short"],["CX1","short"],["LF1","open"],["CX2","short"],["CY1","short"],["CY2","short"],["TH1","open"],["BD1","short"],["BD1","open"],["C2","short"],["LP1","open"],["Q1","short"],["Q1","open"],["R3","open"],["R4","open"],["R5","open"],["D1","short"],["D1","open"],["D2","short"],["C1","short"],["C1","dry"],["IC1","dead"],["C3","dry"],["C3","short"],["C4","short"],["R6","open"],["R6","drift"],["R7","open"],["R9","open"],["IC2","dead"],["IC2","short"],["T1","open"],["R11","open"],["C5","open"],["D3","open"],["D4","open"],["D4","short"],["R12","open"],["C6","dry"],["C6","short"],["C9","short"],["R8","open"],["D5","short"],["D5","open"],["C7","dry"],["C7","short"],["L1","open"],["C8","short"],["R13","open"],["R14","open"],["IC4","open"],["IC4","short"],["R15","open"],["PC1","open"],["PC1","short"],["R16","open"],["R17","open"],["Q2","open"],["Q2","short"],["PC3","open"],["PC3","short"],["R18","open"],["Q3","open"],["Q3","short"],["ZD1","short"],["C16","dry"],["C16","short"],["IC3","dead"],["R21","open"],["C12","dry"],["C12","short"],["Q4","short"],["Q4","open"],["Q5","short"],["Q5","open"],["R19","open"],["R20","open"],["D6","open"],["D6","short"],["C10","open"],["C10","short"],["C11","open"],["C11","short"],["T2","open"],["D7","short"],["D7","open"],["C13","dry"],["C13","short"],["C14","dry"],["C14","short"],["D9","short"],["D9","open"],["C15","dry"],["C15","short"],["R23","open"],["R24","open"],["IC5","open"],["IC5","short"],["R25","open"],["PC2","open"],["PC2","short"],["D3","short"]];
 const PANEL_TITLE=id=>(PAN[PANEL_OF[id]]||[,,""])[2].replace(/^\d+ · /,"");
 SCEN.push({t:"Случайная поломка (1 деталь)",rand:1,n:1},{t:"Случайная поломка (2 детали)",rand:1,n:2});
 function genRandom(sc){
@@ -184,7 +147,7 @@ function restoreGame(){const s=store.get("save",null);if(!s||!SCEN[s.sc])return 
 
 /* ---------- win hook ---------- */
 function winHtml(sec){const r=scoreRepair(sec);
-  return `<b>Отремонтировано!</b> Телевизор работает: изображение есть, все напряжения в норме.<div class="score"><span class="stars">${"★".repeat(r.stars)}${"☆".repeat(3-r.stars)}</span> <b>${r.s}</b> очков · время ${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")} · подсказок ${game.hints}${game.reveal?" + ответ":""} · лишних выпаек ${game.extra||0} · неподходящих деталей ${game.wrong||0}</div>`+
+  return `<b>Отремонтировано!</b> ${BOARD.okText}<div class="score"><span class="stars">${"★".repeat(r.stars)}${"☆".repeat(3-r.stars)}</span> <b>${r.s}</b> очков · время ${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")} · подсказок ${game.hints}${game.reveal?" + ответ":""} · лишних выпаек ${game.extra||0} · неподходящих деталей ${game.wrong||0}</div>`+
     (SCEN[game.sc].rand?`<div class="dim">Были неисправны: ${SCEN[game.sc].a}</div>`:"")+` <button type="button" id="nextB">Следующая задача</button>`}
 
 /* ---------- init ---------- */

@@ -1,9 +1,7 @@
-/* simulation */
-const st={lamp:false,lab:{on:false,rail:"vccs",v:15,lim:.5},temp:{},mains:true,tv:false,F:{},sec:{},fuse:false,rcd:false,surge:null,ovp:false,ovpT:0,bulk:0,a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false,casc:{},t:0,last:performance.now(),speed:1};
-let S={};
-const is=(i,m)=>st.F[i]===m, okp=i=>!st.F[i];
-const logEl=$("log");
-function log(msg,red){const li=document.createElement("li");if(red)li.className="r";const d=new Date();li.innerHTML=`<b>${d.toLocaleTimeString("ru-RU")}</b>`;li.append(msg);logEl.prepend(li);while(logEl.children.length>60)logEl.lastChild.remove()}
+Object.assign(st,{bulk:0,a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false});
+st.lab.rail="vccs";
+BOARD.reset=()=>{Object.assign(st,{a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false})};
+/* Samsung BN44: модель работы */
 const CASC=[
  ["D3","open","sby",6,"IC2","short","Без снаббера выбросы на стоке пробили ключ IC2."],
  ["R11","open","sby",12,"IC2","short","C5 зарядился и перестал гасить выбросы — ключ IC2 пробит."],
@@ -129,7 +127,7 @@ function sim(now,dt){
   const acI=st.lamp&&surge?1.2*Math.sign(acV||1):surge?6*Math.sign(acV||1):(pfcBoost?1.5*acV:(charging?2.2*Math.sign(acV):0));
   S={t,acV,acI,mains,pre,afterLF,inPath,rectOK,surge,surgeNet,fuse:st.fuse,bulk:st.bulk,sbyMode,sbyOn,a5v:st.a5v,v5raw,vccS:st.vccS,pson,q2,led3,pt3,q3,vccM:st.vccM,
     pfcIC,pfcSw,pfcBoost,pfcPulse,fbv,llcOut,llcRun,llcGate,llcIC,lab,lampB,sw,v13:st.v13,v24:st.v24,charging,bridgeOn:(charging||pfcBoost)&&rectOK,d2on:charging&&okp("D2"),
-    sbyPulse:sbyOn?sq(t*1.6,.42):0,led1:sbyOn&&!fbOV&&sbyMode!=="off",led2:llcOut&&!fb2OV&&st.v13>5,tvRun:pson&&st.v13>12&&st.v13<14.5&&st.v24>21&&st.a5v>4.5};
+    sbyPulse:sbyOn?sq(t*1.6,.42):0,led1:sbyOn&&!fbOV&&sbyMode!=="off",led2:llcOut&&!fb2OV&&st.v13>5,devOK:pson&&st.v13>12&&st.v13<14.5&&st.v24>21&&st.a5v>4.5,tvRun:pson&&st.v13>12&&st.v13<14.5&&st.v24>21&&st.a5v>4.5};
 }
 function nets(){
   const s=S,R=s.surgeNet||{};

@@ -134,3 +134,5 @@ function build(){
   });
 }
 build();
+const W0=GX+Math.max(...Object.values(PAN).map(p=>p[0]))*(PW+GX)+PW+GX,H0=GY+Math.max(...Object.values(PAN).map(p=>p[1]))*(PH+GY)+PH+GY;
+svg.setAttribute("viewBox",`0 -4 ${W0} ${H0}`);

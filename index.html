@@ -12,6 +12,7 @@
 <div class="wrap">
   <header>
     <div>
+    <nav class="boards" aria-label="Блоки питания"><a href="index.html" aria-current="page">Samsung BN44 (ТВ)</a><a href="adapter.html">Адаптер 12 В (UC3842)</a><a href="extra/psu-basics.html">Основы: блок-схема</a></nav>
       <h1>Блок питания телевизора Samsung: полная схема</h1>
       <p class="lead">Типовой блок Samsung серии BN44: фильтр → мост → корректор мощности (PFC) → дежурный источник 5 В → полумост LLC 13/24 В. Точки на проводах — это ток. Нажмите на любую деталь и выведите её из строя, чтобы увидеть, как ломается цепь.</p>
     </div>
@@ -19,6 +20,7 @@
 
   <div class="bar" role="toolbar" aria-label="Управление">
     <button id="bMode" type="button">Режим: обучение</button>
+    <button id="bView" type="button">Вид: схема</button>
     <span class="sep"></span>
     <button id="bMains" type="button" class="on">Вилка в розетке</button>
     <button id="bTv" type="button">Пульт: включить ТВ</button>
@@ -110,16 +112,20 @@
   </div>
   <p class="hint">Схема собрана по типовой архитектуре блоков Samsung BN44 (PFC + дежурка на ICE3BR0665J + LLC-контроллер FAN7621 с внешними ключами). Позиционные обозначения и номиналы типичные, у конкретной платы они отличаются.</p>
 </div>
-<script src="js/01-helpers.js"></script>
-<script src="js/02-parts.js"></script>
-<script src="js/03-schematic.js"></script>
-<script src="js/04-render.js"></script>
-<script src="js/05-sim.js"></script>
-<script src="js/06-loop.js"></script>
-<script src="js/07-kit.js"></script>
-<script src="js/08-workshop.js"></script>
-<script src="js/09-instruments.js"></script>
-<script src="js/10-ui.js"></script>
-<script src="js/11-extras.js"></script>
+<script src="js/core/01-helpers.js"></script>
+<script src="boards/samsung/parts.js"></script>
+<script src="boards/samsung/schematic.js"></script>
+<script src="js/core/04-render.js"></script>
+<script src="boards/samsung/sim.js"></script>
+<script src="js/core/06-loop.js"></script>
+<script src="js/core/07-kit.js"></script>
+<script src="boards/samsung/scenarios.js"></script>
+<script src="js/core/08-workshop.js"></script>
+<script src="boards/samsung/probe.js"></script>
+<script src="js/core/09-instruments.js"></script>
+<script src="boards/samsung/device.js"></script>
+<script src="js/core/10-ui.js"></script>
+<script src="js/core/11-extras.js"></script>
+<script src="js/core/12-pcb.js"></script>
 </body>
 </html>
