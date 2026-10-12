@@ -91,7 +91,7 @@ function drawPart(g,c){
   let bb,bbx,bby;{const bx=c.t==="IC"?c.x+c.w-6:(c.c?c.c[0]+14:(c.d?c.d[0]-22:(c.a?(c.a[0]+c.b[0])/2+10:(c.x?c.x[1]+6:0)))),by=c.t==="IC"?c.y+6:(c.c?c.c[1]-18:(c.d?(c.d[1]+c.s[1])/2-20:(c.a?(c.a[1]+c.b[1])/2-16:(c.y?c.y[0]:0))));
     el("rect",{x:bx-2,y:by-9,width:24,height:12,rx:3,style:"fill:var(--bad)"},badge);bb=el("text",{x:bx+10,y:by,class:"badge","text-anchor":"middle"},badge);bbx=bx+10;bby=by}
   const tagT=el("text",{x:(c.t==="IC"?c.x+c.w/2:bbx),y:(c.t==="IC"?c.y+c.h+12:bby-12),class:"tag","text-anchor":"middle",style:"display:none"},G);
-  if(!c.nopart){G.dataset.id=id;G.addEventListener("pointerdown",e=>{if(e.button!==0)return;e.preventDefault();if(ms&&ms.tool!=="hand"){measureAt(id);return}dStart(e,"part",id,id+" · "+pd[0])});
+  if(!c.nopart){G.dataset.id=id;G.addEventListener("pointerdown",e=>{if(e.button!==0||e.pointerType==="touch")return;e.preventDefault();if(ms&&ms.tool!=="hand"){measureAt(id);return}dStart(e,"part",id,id+" · "+pd[0])});
     G.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(id)}})}
   let lastSlot;
   const painter={G,c,paint(col,bad,mode,S){

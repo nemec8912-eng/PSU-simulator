@@ -64,10 +64,10 @@ function NODE(k){
    case"l3a":return[okp("R17")?(s.led3?s.a5v-.5:s.a5v):0,0];case"q2c":return[s.q2?.12:(okp("R17")?s.a5v:0),0];
    case"q3b":return[s.q3?s.vccS-.7:s.vccS,0];case"q3b2":return[s.pt3?.2:s.vccS,0];
    case"mid":return[on?b/2:0,on?b*.5:0];case"crB":return[0,on?150:0];
-   case"ho":return[s.llcRun?b/2+6:0,0];case"lo":return[s.llcRun?6:0,0];
-   case"gHi":return[on||(s.llcRun&&okp("R19"))?b/2+6:0,0];case"gLo":return[(s.llcRun&&okp("R20"))?6:0,0];
+   case"ho":return[s.llcGate?b/2+6+(b<30?6:0):0,0];case"lo":return[s.llcGate?6:0,0];
+   case"gHi":return[(s.llcGate&&okp("R19"))?b/2+6+(b<30?6:0):0,0];case"gLo":return[(s.llcGate&&okp("R20"))?6:0,0];
    case"vb":return[on?b/2+14:(okp("D6")?Math.max(0,s.vccM-.6):0),0];
-   case"rt":return[s.llcIC?2:0,0];case"fb3":return[on?(s.led2?1:4.5):0,0];
+   case"rt":return[s.llcIC&&okp("R21")?2:0,0];case"fb3":return[on?(s.led2?1:4.5):0,0];
    case"t2a":return[0,on?14.5:0];case"t24":return[0,on&&okp("D9")?26:0];
    case"v13":return[s.v13,(is("C13","dry")||is("C14","dry"))?.9:.03];case"v24":return[s.v24,is("C15","dry")?1.8:.05];
    case"div13":{const v=s.v13;return[is("R23","open")?0:(is("R24","open")?v:v*9.1/48.1),0]}
@@ -206,7 +206,7 @@ function probePts(id){
   return[[A[0]+ox,A[1]+oy],[B[0]+ox,B[1]+oy]];
 }
 function drawProbes(){
-  probeG.innerHTML="";if(!ms.id||ms.tool==="hand"||ms.tool==="tst")return;const pp=probePts(ms.id);if(!pp)return;
+  probeG.innerHTML="";if(!ms.id||ms.tool==="hand"||ms.tool==="tst"||ms.tool==="thermo")return;const pp=probePts(ms.id);if(!pp)return;
   const one=(p,col,dx,lab)=>{const g=el("g",{},probeG);el("circle",{cx:p[0],cy:p[1],r:7,class:"pring",style:`stroke:${col}`},g);
     el("line",{x1:p[0],y1:p[1],x2:p[0]+dx,y2:p[1]-34,style:`stroke:${col};stroke-width:7;stroke-linecap:round`},g);
     el("line",{x1:p[0],y1:p[1],x2:p[0]+dx*.25,y2:p[1]-8.5,style:`stroke:${col};stroke-width:2.2`},g);el("circle",{cx:p[0],cy:p[1],r:3,style:`fill:${col}`},g);

@@ -124,7 +124,7 @@ function setMode(on){
   $("repair").hidden=!on;document.body.classList.toggle("game",on);
   if(on&&game.sc<0)startScenario(+scSel.value||0);else{renderCard()}
 }
-function resetBoard(){st.F={};st.sec={};st.casc={};st.inst={};st.later={};st.slot={};st.trash=[];st.bug=false;st.fuse=false;st.rcd=false;st.ovp=false;st.ovpT=0;st.mains=true;st.tv=false;st.bulk=0;st.a5v=0;st.vccS=0;st.vccM=0;st.v13=0;st.v24=0;st.llcEn=false}
+function resetBoard(){st.surge=null;st.lab.on=false;st.lampWarn=0;st.F={};st.sec={};st.casc={};st.inst={};st.later={};st.slot={};st.trash=[];st.bug=false;st.fuse=false;st.rcd=false;st.ovp=false;st.ovpT=0;st.mains=true;st.tv=false;st.bulk=0;st.a5v=0;st.vccS=0;st.vccM=0;st.v13=0;st.v24=0;st.llcEn=false}
 function startScenario(i){
   const sc=SCEN[i];resetBoard();Object.assign(st.F,sc.F);st.fuse=!!sc.fuse;
   Object.assign(game,{sc:i,hints:0,done:false,reveal:false,t0:Date.now(),moves:0});
@@ -147,7 +147,7 @@ function checkWin(){
   if(!game.on||game.done||game.sc<0)return;
   const clean=!Object.keys(st.F).length&&!st.fuse&&!Object.keys(st.later).length&&!st.bug&&!Object.values(st.slot).includes("empty")&&Object.values(st.inst).every(o=>o.r==="ok"||o.r==="ok2");
   if(st.tv&&S.tvRun&&clean&&st.mains){game.done=true;const sec=Math.round((Date.now()-game.t0)/1000);
-    $("win").innerHTML=`<b>Отремонтировано!</b> Телевизор работает: изображение есть, все напряжения в норме. Время: ${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}, действий с деталями: ${game.moves}, подсказок: ${game.hints}${game.reveal?" (с ответом)":""}. <button type="button" id="nextB">Следующая задача</button>`;
+    $("win").innerHTML=winHtml(sec);
     log("Ремонт завершён: ТВ работает.");renderGame();
     $("nextB").addEventListener("click",()=>{const n=(game.sc+1)%SCEN.length;scSel.value=n;startScenario(n)})}
 }

@@ -23,7 +23,9 @@
     <button id="bMains" type="button" class="on">Вилка в розетке</button>
     <button id="bTv" type="button">Пульт: включить ТВ</button>
     <span class="sep"></span>
+    <button id="bLamp" type="button">Лампа 100 Вт: нет</button>
     <button id="bFixAll" type="button">Починить всё</button>
+    <button id="bSnd" type="button">Звук: вкл</button>
     <label class="rng" for="spd">Скорость <input id="spd" type="range" min="10" max="200" value="100"></label>
     <select id="pick" aria-label="Выбрать деталь"></select>
     <div class="zoom"><button id="zOut" type="button" aria-label="Уменьшить">−</button><button id="zFit" type="button">По ширине</button><button id="zIn" type="button" aria-label="Увеличить">+</button></div>
@@ -40,6 +42,7 @@
     <div class="rp-act"><button id="hintB" type="button">Подсказка</button><button id="ansB" type="button">Показать ответ</button></div>
     <ol class="hints" id="hints"></ol>
     <div class="win" id="win" hidden></div>
+    <details class="hist" id="hist"><summary id="histSum">Мои ремонты</summary><div class="histw"><table id="histT"></table></div><button type="button" id="histClr">Очистить историю</button></details>
   </section>
 
   <div class="work">
@@ -65,6 +68,14 @@
           <button type="button" id="discharge">Разрядить C1 резистором</button>
         </div>
       </div>
+      <div class="labpsu" id="labBox">
+        <div class="th"><b>Лабораторный БП</b><span>подать напряжение на шину при выдернутой вилке и найти КЗ по нагреву</span></div>
+        <select id="labRail" aria-label="Шина"></select>
+        <div class="lrow"><label for="labV">U, В <input id="labV" type="number" min="0" max="30" step="0.5" value="15"></label>
+          <label for="labI">I огр., А <select id="labI"><option value="0.1">0,1</option><option value="0.5" selected>0,5</option><option value="1">1</option><option value="2">2</option></select></label></div>
+        <div class="lcdl"><span id="labVo">0,00 В</span><span id="labIo">0,000 А</span><b id="labCC">—</b></div>
+        <button type="button" id="labOn">Включить ЛБП</button>
+      </div>
       <div class="trash" id="trash"><div class="th"><b>Корзина</b><span>перетащите сюда деталь со схемы</span></div><ul id="trashL"></ul></div>
       <div class="cat">
         <div class="th"><b>Каталог деталей</b><span>перетащите на пустое место</span></div>
@@ -86,7 +97,9 @@
       <h3>Что происходит с телевизором</h3>
       <div class="tv">
         <div class="screen" id="screen"><span>выключен</span></div>
-        <div><div class="led"><i id="led"></i><span id="ledT">светодиод дежурки</span></div><p class="see" id="see"></p></div>
+        <div><div class="led"><i id="led"></i><span id="ledT">светодиод дежурки</span></div>
+          <div class="lampbox" id="lampBox" hidden><i id="bulb"></i><span>Лампа 100 Вт: <b id="lampT"></b></span></div>
+          <p class="see" id="see"></p></div>
       </div>
       <table class="rd" id="rd"></table>
     </section>
@@ -107,5 +120,6 @@
 <script src="js/08-workshop.js"></script>
 <script src="js/09-instruments.js"></script>
 <script src="js/10-ui.js"></script>
+<script src="js/11-extras.js"></script>
 </body>
 </html>

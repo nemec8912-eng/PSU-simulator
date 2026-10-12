@@ -1,5 +1,5 @@
 /* simulation */
-const st={mains:true,tv:false,F:{},sec:{},fuse:false,rcd:false,surge:null,ovp:false,ovpT:0,bulk:0,a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false,casc:{},t:0,last:performance.now(),speed:1};
+const st={lamp:false,lab:{on:false,rail:"vccs",v:15,lim:.5},temp:{},mains:true,tv:false,F:{},sec:{},fuse:false,rcd:false,surge:null,ovp:false,ovpT:0,bulk:0,a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false,casc:{},t:0,last:performance.now(),speed:1};
 let S={};
 const is=(i,m)=>st.F[i]===m, okp=i=>!st.F[i];
 const logEl=$("log");
@@ -23,8 +23,18 @@ function sim(now,dt){
   const pre=mains&&okp("F1")&&!st.fuse;
   const afterLF=pre&&okp("LF1");
   const inPath=afterLF&&okp("TH1");
+  // lab PSU (only with mains unplugged and C1 discharged)
+  let lab=null;
+  if(st.lab.on){
+    if(mains||st.bulk>30){st.lab.on=false;log(mains?"ЛБП отключён: вилка в розетке.":"ЛБП отключён: на C1 опасное напряжение.",true);if(typeof labUi==="function")labUi()}
+    else{const R=LAB_RAILS[st.lab.rail],sh=R.parts.filter(id=>is(id,"short")&&st.slot[id]!=="empty");
+      let v=st.lab.v,i=0;
+      if(sh.length){v=.12;i=st.lab.lim}
+      else{i=R.load(v);if(i>st.lab.lim){i=st.lab.lim;v=R.vAt?R.vAt(i):Math.min(v,v*st.lab.lim/R.load(v))}}
+      lab={rail:st.lab.rail,v,i,sh,cc:i>=st.lab.lim-1e-6}}}
   // immediate shorts
-  if(!st.surge&&pre){
+  let shortC=null,shortN=null;
+  if(pre){
     let c=null,nets=["ac0","ac1","n0"];
     if(is("RV1","short"))c="пробит варистор RV1";else if(is("CX1","short"))c="пробит CX1";else if(is("CY1","short"))c="L замкнута на землю через CY1";
     else if(afterLF&&is("CX2","short")){c="пробит CX2";nets.push("ac1b","n2")}
@@ -36,10 +46,15 @@ function sim(now,dt){
       else if(is("IC2","short")){c="пробит ключ внутри IC2";nets.push("rect","d2","bplus","sbysw")}
       else if(st.prevPfc&&is("D1","short")){c="Q1 открылся и замкнул C1 через пробитый D1";nets.push("rect","pfcx","pfcq","bplus")}
       else if(st.prevLlc&&(is("Q4","short")||is("Q5","short"))){c="сквозной ток через ключи LLC Q4 и Q5";nets.push("rect","d2","bplus","mid","hg")}}
-    if(c)surgeStart(c,nets,now);
+    if(c){shortC=c;shortN=nets}
   }
+  if(st.lamp){
+    if(shortC){if(!st.surge){st.surge={t0:now,cause:shortC,nets:shortN,lamp:1};if(!st.lampWarn){st.lampWarn=1;log((game.on&&!game.reveal)?"Лампа вспыхнула ярко и не гаснет — в блоке короткое замыкание. Предохранитель цел.":"Лампа горит ярко: "+shortC+". Предохранитель защищён лампой.",true)}}}
+    else if(st.surge&&now-st.surge.t0>700){st.surge=null}
+    if(!shortC&&!st.surge)st.lampWarn=0;
+  }else if(!st.surge&&shortC)surgeStart(shortC,shortN,now);
   let surge=!!st.surge,surgeNet={};
-  if(surge){st.surge.nets.forEach(n=>surgeNet[n]=1);if(now-st.surge.t0>(st.bug?2600:1400)){st.fuse=true;st.surge=null;surge=false;surgeNet={};
+  if(surge){st.surge.nets.forEach(n=>surgeNet[n]=1);if(!st.lamp&&now-st.surge.t0>(st.bug?2600:1400)){st.fuse=true;st.surge=null;surge=false;surgeNet={};
     if(st.bug){st.bug=false;if(!st.F.BD1)st.F.BD1="short";st.sec.BD1="F1";log("«Жучок» на 10 А не сгорел вовремя: выгорели мост BD1 и дорожка на плате, только потом оплавился сам «жучок».",true)}
     else log("Сгорел предохранитель F1. Замените его, но только после устранения причины.",true)}}
   const rectOK=inPath&&!st.fuse&&!is("BD1","open")&&!surge;
@@ -57,6 +72,7 @@ function sim(now,dt){
   const a5vT=(is("L1","open")||is("C8","short"))?0:v5raw;
   st.a5v+=(a5vT-st.a5v)*(1-Math.exp(-dt/(a5vT<st.a5v?.05:.04)));
   st.vccS+=((sbyOn?16:0)-st.vccS)*(1-Math.exp(-dt/.08));
+  if(lab&&lab.rail==="a5v")st.a5v=lab.v;if(lab&&lab.rail==="vccs")st.vccS=lab.v;
   const mcu=st.a5v>4.5&&st.a5v<6;
   const pson=st.tv&&mcu;
   // ---- power on
@@ -67,6 +83,7 @@ function sim(now,dt){
   let vccMT=(q3&&st.vccS>10&&!is("ZD1","short")&&!is("C16","short")&&!is("C3","short")&&!is("C12","short"))?15:0;
   if(vccMT&&is("C16","dry")&&(now%1800)>1100)vccMT=0;
   st.vccM+=(vccMT-st.vccM)*(1-Math.exp(-dt/.06));
+  if(lab&&lab.rail==="vccm")st.vccM=lab.v;
   // ---- PFC
   const fbv=okp("R6")&&okp("R7")?(okp("R9")?st.bulk/390*2.5*(is("R6","drift")?.92:1):6):0;
   const pfcIC=st.vccM>10&&!is("IC1","dead")&&!is("C4","short")&&okp("R6")&&okp("R7")&&okp("R9")&&!(is("C3","dry")&&(now%3000)>2000);
@@ -76,6 +93,7 @@ function sim(now,dt){
   const llcLoad=st.prevLlc?1:0;
   let bT=(!rectOK||!path)?0:(pfcBoost?(is("R6","drift")?425:390):322);
   if(is("C1","dry")&&llcLoad)bT-=60;
+  if(st.lamp&&llcLoad)bT-=18;
   const charging=rectOK&&!pfcBoost&&Math.abs(acV)>.93&&(sbyOn||llcLoad||st.bulk<300);
   if(surge&&(surgeNet.bplus))bT=0;
   st.bulk+=(bT-st.bulk)*(1-Math.exp(-dt/(bT>st.bulk?.35:(llcLoad?.8:(sbyOn?(rectOK?9:1.2):30)))));
@@ -87,6 +105,7 @@ function sim(now,dt){
   const llcRun=llcIC&&st.llcEn&&!st.ovp&&(!(s13||s24)||ocpOn)&&!surge;
   const llcDrive=okp("R19")&&okp("R20")&&!is("Q4","open")&&!is("Q5","open")&&okp("D6")&&!F.C10&&!is("C11","open")&&okp("T2");
   const llcOut=llcRun&&llcDrive;
+  const llcGate=llcIC&&(st.llcEn||(lab&&lab.rail==="vccm"))&&!st.ovp&&!surge;
   const sw=llcOut?sq(t*.9,.44):0;
   const fb2OV=is("IC5","open")||is("R23","open")||is("R25","open")||is("PC2","open");
   const fb2Low=is("IC5","short")||is("R24","open")||is("PC2","short");
@@ -99,15 +118,17 @@ function sim(now,dt){
     if(is("D9","open"))v24T=0;
   }
   st.v13+=(v13T-st.v13)*(1-Math.exp(-dt/(v13T<st.v13?.06:.12)));st.v24+=(v24T-st.v24)*(1-Math.exp(-dt/(v24T<st.v24?.06:.12)));
+  if(lab&&lab.rail==="v13")st.v13=lab.v;if(lab&&lab.rail==="v24")st.v24=lab.v;
   if(!st.ovp&&(st.v13>15.5||st.v24>28.5)){st.ovpT+=dt;if(st.ovpT>.45){st.ovp=true;st.ovpT=0;log("Сработала защита от перенапряжения (OVP): LLC выключен до следующего включения.",true)}}else if(!st.ovp)st.ovpT=0;
   // cascades
   const runFlags={sby:sbyOn&&sbyMode!=="hic",pfc:pfcSw,llc:llcRun};
   CASC.forEach(([id,m,cond,sec,tg,tm,msg])=>{const k=id+m;if(is(id,m)&&!st.F[tg]&&runFlags[cond]){st.casc[k]=(st.casc[k]||0)+dt;if(st.casc[k]>sec){st.F[tg]=tm;st.sec[tg]=id;log((game.on&&!game.reveal)?"Щелчок и запах гари — похоже, что-то ещё вышло из строя.":"Вторичная поломка: "+msg,true);renderCard()}}});
   Object.entries(st.later).forEach(([id,L])=>{if(!mains)return;L.t-=dt;if(L.t<=0){delete st.later[id];st.F[L.tg]=L.tm;if(L.tg!==id)st.sec[L.tg]=id;log(`${L.tg} вышел из строя: ${L.msg}`,true);renderCard()}});
   st.prevPfc=pfcSw;st.prevLlc=llcOut;
-  const acI=surge?6*Math.sign(acV||1):(pfcBoost?1.5*acV:(charging?2.2*Math.sign(acV):0));
+  const lampB=!st.lamp||!mains?0:(surge?1:Math.min(1,Math.max(0,(bT-st.bulk)/160)*(rectOK?1:0)+(llcOut?.22:0)+(sbyOn?.04:0)+(pfcBoost?.05:0)));
+  const acI=st.lamp&&surge?1.2*Math.sign(acV||1):surge?6*Math.sign(acV||1):(pfcBoost?1.5*acV:(charging?2.2*Math.sign(acV):0));
   S={t,acV,acI,mains,pre,afterLF,inPath,rectOK,surge,surgeNet,fuse:st.fuse,bulk:st.bulk,sbyMode,sbyOn,a5v:st.a5v,v5raw,vccS:st.vccS,pson,q2,led3,pt3,q3,vccM:st.vccM,
-    pfcIC,pfcSw,pfcBoost,pfcPulse,fbv,llcOut,llcRun,sw,v13:st.v13,v24:st.v24,charging,bridgeOn:(charging||pfcBoost)&&rectOK,d2on:charging&&okp("D2"),
+    pfcIC,pfcSw,pfcBoost,pfcPulse,fbv,llcOut,llcRun,llcGate,llcIC,lab,lampB,sw,v13:st.v13,v24:st.v24,charging,bridgeOn:(charging||pfcBoost)&&rectOK,d2on:charging&&okp("D2"),
     sbyPulse:sbyOn?sq(t*1.6,.42):0,led1:sbyOn&&!fbOV&&sbyMode!=="off",led2:llcOut&&!fb2OV&&st.v13>5,tvRun:pson&&st.v13>12&&st.v13<14.5&&st.v24>21&&st.a5v>4.5};
 }
 function nets(){
@@ -131,3 +152,10 @@ function nets(){
   Object.keys(R).forEach(k=>{if(n[k])n[k].red=1});
   return n;
 }
+const LAB_RAILS={
+ vccs:{n:"VCC-S (питание дежурки, IC2)",def:15,parts:["C6","D4"],load:v=>(is("D4","short")&&okp("R12")?v/22.5:0)+(v>10&&!st.F.IC2?.004:0)+.0005},
+ vccm:{n:"VCC-M (питание PFC и LLC)",def:15,parts:["C16","C3","C12","ZD1"],load:v=>(v>18?(v-18)/2:0)+(v>9?(st.F.IC1?0:.012)+(st.F.IC3?0:.018):0)+.0007,vAt:i=>Math.min(st.lab.v,18+2*i)},
+ a5v:{n:"A5V (дежурные 5 В)",def:5,parts:["C7","C8","D5"],load:v=>v/20000+(v>2.6&&!is("IC4","open")?.006:0)+.0003},
+ v13:{n:"+13 В",def:13,parts:["C13","C14","D7"],load:v=>(okp("R26")?v/220:0)+v/48100},
+ v24:{n:"+24 В",def:24,parts:["C15","D9"],load:v=>.0008}
+};
