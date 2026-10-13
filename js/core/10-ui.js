@@ -40,8 +40,8 @@ function renderCard(){
   const K=kitFor(sel);body.querySelectorAll("button[data-k]").forEach(b=>b.addEventListener("click",()=>{if(st.slot[sel]==="empty"){st.trash=st.trash.filter(x=>x.id!==sel)}install(sel,K[+b.dataset.k]);renderTrash()}));
   const rb=$("rmB");if(rb)rb.addEventListener("click",()=>removePart(sel));
 }
-function syncBtns(){$("bMains").classList.toggle("on",st.mains);$("bMains").textContent=st.mains?"Вилка в розетке":"Вилка выдернута";$("bTv").classList.toggle("tvon",st.tv);$("bTv").textContent=st.tv?BOARD.onBtn:BOARD.offBtn}
-$("bMains").addEventListener("click",()=>{st.mains=!st.mains;if(!st.mains){st.ovp=false;st.rcd=false}syncBtns();log(st.mains?"Вилка вставлена в розетку.":"Вилка выдернута.")});
+function syncBtns(){$("bMains").classList.toggle("on",st.mains);$("bMains").textContent=st.mains?(BOARD.mainsOn||"Вилка в розетке"):(BOARD.mainsOff||"Вилка выдернута");$("bTv").classList.toggle("tvon",st.tv);$("bTv").textContent=st.tv?BOARD.onBtn:BOARD.offBtn}
+$("bMains").addEventListener("click",()=>{st.mains=!st.mains;if(!st.mains){st.ovp=false;st.rcd=false}syncBtns();log(st.mains?(BOARD.mainsOnLog||"Вилка вставлена в розетку."):(BOARD.mainsOffLog||"Вилка выдернута."))});
 $("bTv").addEventListener("click",()=>{st.tv=!st.tv;if(!st.tv)st.ovp=false;syncBtns();log(st.tv?BOARD.onLog:BOARD.offLog)});
 $("bFixAll").addEventListener("click",()=>{if(game.on){toast("В режиме ремонта чинить нужно самому. Переключитесь в режим «Обучение».");return}st.F={};st.sec={};st.casc={};st.inst={};st.later={};st.slot={};st.trash=[];st.bug=false;st.fuse=false;st.rcd=false;st.ovp=false;log("Все детали заменены исправными.");renderCard();renderTrash()});
 $("spd").addEventListener("input",e=>st.speed=e.target.value/100);

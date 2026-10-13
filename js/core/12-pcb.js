@@ -75,6 +75,31 @@ function buildPcb(){
   el("text",{x:PW0-14,y:PH0-8,class:"rnote","text-anchor":"end"},pcbSvg).textContent="Вид условный: детали сгруппированы по узлам схемы. Видимые повреждения показаны так, как их видно глазом.";
 }
 buildPcb();
+/* copper traces: pads of all parts that share a circuit node are joined (minimal spanning tree, L-shaped tracks) */
+function padsOf(f){const {w,h,k}=f;
+  switch(k){case"res":case"dio":case"fuse":return[[-3,h/2],[w+3,h/2]];case"box":case"disc":return[[3,h+3],[w-3,h+3]];
+    case"ecap":case"led":return[[w*.3,h/2],[w*.7,h/2]];case"to92":return[[w*.2,h],[w*.5,h],[w*.8,h]];case"to220":return[[w*.2,h+5],[w*.5,h+5],[w*.8,h+5]];
+    case"ntc":case"var":return[[w*.25,h],[w*.75,h]];case"sip":return[[w*.12,h],[w*.37,h],[w*.62,h],[w*.87,h]];
+    case"xfmr":return[[0,h*.25],[0,h*.75],[w,h*.25],[w,h*.75]];case"toroid":return[[w*.15,h*.85],[w*.85,h*.85]];
+    case"dip4":return[[2,h+3],[w-2,h+3],[w-2,-3],[2,-3]];
+    case"dip":{const n=Math.round(w/8),r=[];for(let i=0;i<n;i++)r.push([4+i*(w-8)/Math.max(1,n-1),h+3]);for(let i=n-1;i>=0;i--)r.push([4+i*(w-8)/Math.max(1,n-1),-3]);return r}}
+  return[[0,h/2],[w,h/2]]}
+const traceG=el("g",{class:"traces","aria-hidden":"true"});const traceOf={};
+(function(){
+  const nodes={};
+  Object.entries(pcbParts).forEach(([id,p])=>{const pins=(typeof PINS!=="undefined"&&PINS[id])||[];const pads=padsOf(p.f);
+    pins.forEach(([lab,n],k)=>{const q=pads[Math.min(k,pads.length-1)];(nodes[n]=nodes[n]||[]).push([p.x+q[0],p.y+q[1],id])})});
+  Object.entries(nodes).forEach(([n,pts])=>{if(pts.length<2)return;const gnd=/^(hg0|cg0|pe0|nIn|nLF)$/.test(n);
+    const inT=[pts[0]],out=pts.slice(1),segs=[];
+    while(out.length){let best=null;inT.forEach(a=>out.forEach((b,j)=>{const d=Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);if(!best||d<best.d)best={a,b,j,d}}));
+      segs.push(`M${best.a[0].toFixed(1)},${best.a[1].toFixed(1)} H${best.b[0].toFixed(1)} V${best.b[1].toFixed(1)}`);inT.push(best.b);out.splice(best.j,1)}
+    const path=el("path",{d:segs.join(" "),class:"trace"+(gnd?" gnd":"")},traceG);
+    pts.forEach(([,,id])=>{(traceOf[id]=traceOf[id]||new Set()).add(path)})});
+  const groups=[...pcbSvg.querySelectorAll(":scope > g")];
+  pcbSvg.appendChild(traceG);groups.forEach(g=>pcbSvg.appendChild(g));
+})();
+let hlPart=null;
+setInterval(()=>{if(!pcbOn||hlPart===sel)return;traceG.querySelectorAll(".hl").forEach(t=>t.classList.remove("hl"));hlPart=sel;(traceOf[sel]||[]).forEach(t=>t.classList.add("hl"))},200);
 function damageOf(id){
   const m=st.F[id]||(id==="F1"&&st.fuse?"open":null),c=catOf(id);if(!m||st.slot[id]==="empty")return"";
   if(c==="F"&&st.fuse)return"blown";

@@ -151,6 +151,6 @@ function winHtml(sec){const r=scoreRepair(sec);
     (SCEN[game.sc].rand?`<div class="dim">Были неисправны: ${SCEN[game.sc].a}</div>`:"")+` <button type="button" id="nextB">Следующая задача</button>`}
 
 /* ---------- init ---------- */
-st.lamp=store.get("lamp",false);lampUi();labUi();soundUi();
+st.lamp=BOARD.noLamp?false:store.get("lamp",false);lampUi();$("bLamp").hidden=!!BOARD.noLamp;syncBtns();labUi();soundUi();
 if(!restoreGame()){}
 if(matchMedia("(max-width:720px)").matches){zoom=.5;applyZoom()}

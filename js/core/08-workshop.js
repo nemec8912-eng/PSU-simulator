@@ -117,6 +117,6 @@ function checkWin(){
   if(st.tv&&S.devOK&&clean&&st.mains){game.done=true;const sec=Math.round((Date.now()-game.t0)/1000);
     $("win").innerHTML=winHtml(sec);
     log(BOARD.doneLog);renderGame();
-    $("nextB").addEventListener("click",()=>{const n=(game.sc+1)%SCEN.length;scSel.value=n;startScenario(n)})}
+    const nb=$("nextB");if(nb)nb.addEventListener("click",()=>{const n=(game.sc+1)%SCEN.length;scSel.value=n;startScenario(n)})}
 }
 renderTrash();

@@ -261,3 +261,13 @@ body.thermo .ptitle{fill:#cfd8e3}
 .tor{fill:#3b3b3b;stroke:#b07a3a;stroke-width:3}.torh{fill:#1f5e3a}
 .char{fill:#1a1a1a;opacity:0}.pfp.burnt .char{opacity:.75}.pfp.burnt .res{fill:#5a4630}
 .crack{fill:none;stroke:#f2f2f2;stroke-width:1.4;opacity:0}.pfp.cracked .crack{opacity:.9}
+/* ---- экзамен ---- */
+.exambar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:color-mix(in srgb,var(--fb) 12%,var(--panel));border:1px solid var(--fb)}
+.exambar #exTime{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+body.exam #hintB,body.exam #ansB,body.exam #scSel,body.exam #scStart,body.exam .hints{display:none}
+.exres{margin:8px 0 0;padding-left:0;list-style:none;display:grid;gap:4px;font-size:14px}
+.exres li.ok{color:var(--lv)}.exres li.no{color:var(--bad)}
+/* ---- дорожки ---- */
+.trace{fill:none;stroke:#d39a52;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.55}
+.trace.gnd{stroke:#b8874a;stroke-width:3.2;opacity:.32}
+.trace.hl{stroke:#ffd27a;opacity:1;stroke-width:3}
