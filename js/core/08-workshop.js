@@ -2,11 +2,11 @@
 st.slot={};st.trash=[];
 const game={on:false,sc:-1,hints:0,done:false,reveal:false,t0:0,moves:0};
 const TYPE_OF={};Object.values(SCH).forEach(sc=>(sc.c||[]).forEach(c=>{if(P[c.id]&&!TYPE_OF[c.id])TYPE_OF[c.id]=c.t}));
-function catOf(id){if(/^IC/.test(id))return"IC";if(/^PC/.test(id))return"OPT";if(/^F\d/.test(id))return"F";if(/^TH/.test(id))return"TH";if(/^RV/.test(id))return"RV";if(/^BD/.test(id))return"BD";if(/^LED/.test(id))return"LED";
+function catOf(id){if(/^IC/.test(id))return"IC";if(/^PC/.test(id))return"OPT";if(/^F\d/.test(id))return"F";if(/^TH/.test(id))return"TH";if(/^RV/.test(id))return"RV";if(/^BD/.test(id))return"BD";if(/^LED/.test(id))return"LED";if(/^LS\d/.test(id))return"SPK";
   return {R:"R",C:"C",CP:"CP",D:"D",DZ:"D",LED:"LED",Q:"Q",BJT:"Q",L:"L",CORE:"L"}[TYPE_OF[id]]||"L"}
-const CATN={R:"резистор",C:"конденсатор",CP:"электролитический конденсатор",D:"диод",Q:"транзистор",IC:"микросхема",OPT:"оптопара",L:"дроссель / трансформатор",F:"предохранитель",TH:"термистор",RV:"варистор",BD:"диодный мост",LED:"светодиод"};
-const CATG={R:"Резисторы",CP:"Электролитические конденсаторы",C:"Плёночные и керамические конденсаторы",D:"Диоды и стабилитроны",Q:"Транзисторы",IC:"Микросхемы",OPT:"Оптопары",L:"Дроссели и трансформаторы",F:"Предохранители",TH:"Термисторы",RV:"Варисторы",BD:"Диодные мосты",LED:"Светодиоды"};
-const CORD=["R","CP","C","D","LED","Q","IC","OPT","L","F","TH","RV","BD"];
+const CATN={R:"резистор",C:"конденсатор",CP:"электролитический конденсатор",D:"диод",Q:"транзистор",IC:"микросхема",OPT:"оптопара",L:"дроссель / трансформатор",F:"предохранитель",TH:"термистор",RV:"варистор",BD:"диодный мост",LED:"светодиод",SPK:"динамик"};
+const CATG={R:"Резисторы",CP:"Электролитические конденсаторы",C:"Плёночные и керамические конденсаторы",D:"Диоды и стабилитроны",Q:"Транзисторы",IC:"Микросхемы",OPT:"Оптопары",L:"Дроссели и трансформаторы",F:"Предохранители",TH:"Термисторы",RV:"Варисторы",BD:"Диодные мосты",LED:"Светодиоды",SPK:"Динамики"};
+const CORD=["R","CP","C","D","LED","Q","IC","OPT","L","F","TH","RV","BD","SPK"];
 const missing=id=>{const m=Object.keys(P[id][4]);return m.includes("open")?"open":m.includes("dry")?"dry":m.includes("dead")?"dead":null};
 const CAT=[];
 {const seen={};Object.keys(P).forEach(id=>kitFor(id).forEach(o=>{let c=catOf(id);if(/стабилитрон/.test(o.l))c="D";if(/^MOC/.test(o.l))c="OPT";
