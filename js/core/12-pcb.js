@@ -18,16 +18,16 @@ function fpOf(id){
     const d=Math.max(12,Math.min(46,7+5.2*Math.log10(cap*vv)));return{k:"ecap",w:d,h:d}}
   if(c==="C")return isHV(v)?{k:"box",w:24,h:12}:{k:"disc",w:12,h:12};
   if(c==="D"&&t==="DZ")return{k:"to92",w:14,h:12};
-  if(c==="D")return /Шоттки|STTH|MBR|STPS|SB\d|SR5/.test(v)?{k:"to220",w:20,h:24}:{k:"dio",w:18,h:6};
+  if(c==="D")return /^SR3|^1N58/.test(v)?{k:"dio",w:18,h:6}:/Шоттки|STTH|MBR|STPS|SB\d|SR5|F16C/.test(v)?{k:"to220",w:20,h:24}:{k:"dio",w:18,h:6};
   if(c==="LED")return{k:"led",w:12,h:12};
-  if(c==="Q")return t==="BJT"?{k:"to92",w:14,h:12}:{k:"to220",w:20,h:24};
+  if(c==="Q")return t==="BJT"&&!/MJE|13009|13007/.test(v)?{k:"to92",w:14,h:12}:{k:"to220",w:20,h:24};
   if(c==="IC"){if(/TL43|эталон/.test(v))return{k:"to92",w:14,h:12};const n=(SCH[PANEL_OF[id]].c.find(x=>x.id===id&&x.pins)||{pins:[1,2,3,4,5,6,7,8]}).pins.length;return{k:"dip",w:n>8?46:34,h:22}}
   if(c==="OPT")return{k:"dip4",w:16,h:14};
   if(c==="F")return{k:"fuse",w:34,h:9};
   if(c==="TH")return{k:"ntc",w:16,h:16};
   if(c==="RV")return{k:"var",w:20,h:20};
   if(c==="BD")return{k:"sip",w:44,h:12};
-  if(/^T\d/.test(id))return{k:"xfmr",w:id==="T2"?74:56,h:id==="T2"?60:46};
+  if(/^T\d/.test(id))return{k:"xfmr",w:id===(BOARD.mainT||"T2")?74:56,h:id===(BOARD.mainT||"T2")?60:46};
   return{k:"toroid",w:/LP1|LF1|L2/.test(id)?40:26,h:/LP1|LF1|L2/.test(id)?40:26};
 }
 function drawFp(g,id,f,x,y){

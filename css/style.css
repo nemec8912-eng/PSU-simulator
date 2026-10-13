@@ -285,3 +285,7 @@ body.exam #hintB,body.exam #ansB,body.exam #scSel,body.exam #scStart,body.exam .
 .wmb{fill:#f7f8fa;stroke:#9aa}.wmd{fill:#cfd6dc;stroke:#778}.wmg{fill:none;stroke:#556;stroke-width:1.5}.wmw{opacity:.75}
 .wml{fill:#10261a}.wmt{fill:#5df2a0;font:700 15px ui-monospace,monospace;text-anchor:middle}.wmt.bad{fill:#ff6b6b}.wms{font-size:10px;fill:#333}
 .wmspin{animation:wmspin .8s linear infinite}@keyframes wmspin{to{transform:rotate(360deg)}}
+/* компьютер (ATX) */
+.screen.pcbox{background:#e9ecef;padding:4px}.pcbox svg{width:100%;height:100%}
+.pcm{fill:#222;stroke:#111}.pcs{fill:#0b0d10}.pcs.on{fill:#1f5fa8}.pct{fill:#fff;font:600 7px system-ui,sans-serif;text-anchor:middle}
+.pcc{fill:#3a3f45;stroke:#222}.pcf{fill:#1d2125;stroke:#666}.pcb{stroke:#888;stroke-width:2}.pcl{fill:#333}.pcl.on{fill:#5df2a0}

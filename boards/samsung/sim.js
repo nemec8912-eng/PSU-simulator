@@ -1,6 +1,6 @@
 Object.assign(st,{bulk:0,a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false});
 st.lab.rail="vccs";
-BOARD.reset=()=>{Object.assign(st,{a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false})};
+BOARD.reset=()=>{Object.assign(st,{a5v:0,vccS:0,vccM:0,v13:0,v24:0,llcEn:false,prevPfc:false,prevLlc:false})};
 /* Samsung BN44: модель работы */
 const CASC=[
  ["D3","open","sby",6,"IC2","short","Без снаббера выбросы на стоке пробили ключ IC2."],

@@ -77,7 +77,7 @@ function drawPart(g,c){
     el("circle",{cx:cx-3,cy:m,r:18,class:"hit"},G);el("circle",{cx:cx-3,cy:m,r:17,class:"dp"},G);
     parts_.push(el("path",{d:`M${bx},${by} H${cx-9} M${cx-9},${m-10} V${m+10} M${cx-9},${m-5} L${cx},${m-12} V${cy_} M${cx-9},${m+5} L${cx},${m+12} V${ey}`,class:"dp"},G));
     fills.push(el("path",{d:c.pnp?(ey<m?`M${cx-9},${m-5} l7,-2 l-3,6 Z`:`M${cx-9},${m+5} l7,2 l-3,-6 Z`):(ey>m?`M${cx},${m+12} l-7,-1 l3,-5 Z`:`M${cx},${m-12} l-7,1 l3,5 Z`)},G));
-    tx(G,cx+18,m-4,id,"did");tx(G,cx+18,m+8,pd[1].split(" ")[0],"dval");
+    {const [ox,oy]=c.lq||[18,-4];tx(G,cx+ox,m+oy,id,"did");tx(G,cx+ox,m+oy+12,pd[1].split(" ")[0],"dval")}
   }else if(c.t==="PT"){
     const [cx,cy]=c.c;el("circle",{cx,cy,r:19,class:"hit"},G);el("circle",{cx,cy,r:17,class:"dp"},G);
     parts_.push(el("path",{d:`M${cx-8},${cy-10} V${cy+10} M${cx-8},${cy-4} L${cx+8},${cy-14} V${cy-17} M${cx-8},${cy+4} L${cx+8},${cy+14} V${cy+17}`,class:"dp"},G));
