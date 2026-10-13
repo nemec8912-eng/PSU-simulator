@@ -24,7 +24,28 @@ function drawPart(g,c){
   if(pd)el("title",{},G).textContent=id+" — "+pd[0]+" ("+pd[1]+")";
   const parts_=[],fills=[],leads=[];let extra=null;
   const label=(x,y,anc,vy)=>{if(c.nolab||!pd)return;tx(G,x,y,c.lab||id,"did",{"text-anchor":anc});tx(G,x,vy,(c.vs||shortV(pd[1])),"dval",{"text-anchor":anc})};
-  if(c.t==="IC"){
+  if(c.t==="TRIAC"){
+    const [x,yb]=c.a,[,yt]=c.b,[gx,gy]=c.g,my=(yb+yt)/2;
+    el("rect",{x:x-16,y:my-14,width:32,height:28,rx:4,class:"hit"},G);
+    leads.push(ln(G,x,yb,x,my+9,"w"),ln(G,x,yt,x,my-9,"w"));
+    parts_.push(ln(G,x-12,my-9,x+12,my-9,"dp"),ln(G,x-12,my+9,x+12,my+9,"dp"));
+    fills.push(el("path",{d:`M${x-11},${my+9} L${x-1},${my+9} L${x-6},${my-9}Z`},G),el("path",{d:`M${x+1},${my-9} L${x+11},${my-9} L${x+6},${my+9}Z`},G));
+    parts_.push(el("path",{d:`M${x-11},${my+9} L${x-18},${my+16} H${gx}`,class:"dp"},G));
+    if(gx<x-18)leads.push(ln(G,x-18,my+16,gx,gy,"w"));
+    tx(G,x+16,my-2,id,"did");tx(G,x+16,my+10,shortV(pd[1]),"dval");
+  }else if(c.t==="XTAL"){
+    const [ax,ay]=c.a,[bx,by]=c.b,mx=(ax+bx)/2,my=(ay+by)/2;el("rect",{x:mx-14,y:my-14,width:28,height:28,rx:4,class:"hit"},G);
+    leads.push(ln(G,ax,ay,mx-8,my,"w"),ln(G,mx+8,my,bx,by,"w"));parts_.push(ln(G,mx-8,my-9,mx-8,my+9,"dp"),ln(G,mx+8,my-9,mx+8,my+9,"dp"),el("rect",{x:mx-5,y:my-7,width:10,height:14,class:"dp dbody"},G));
+    tx(G,mx,my-14,id,"did",{"text-anchor":"middle"});tx(G,mx,my+22,shortV(pd[1]),"dval",{"text-anchor":"middle"});
+  }else if(c.t==="RELAY"){
+    const {x,y}=c;el("rect",{x:x-4,y:y-4,width:128,height:78,rx:6,class:"hit"},G);
+    parts_.push(el("rect",{x,y:y+10,width:26,height:46,class:"dp dbody"},G),ln(G,x,y+56,x+26,y+10,"dp"));
+    ln(G,x+30,y+33,x+70,y+33,"iso");
+    leads.push(ln(G,x+80,y+60,x+80,y+48,"w"),ln(G,x+112,y+12,x+112,y+24,"w"));
+    el("circle",{cx:x+80,cy:y+48,r:2.4,class:"jn"},G);el("circle",{cx:x+112,cy:y+24,r:2.4,class:"jn"},G);
+    const lev=ln(G,x+80,y+48,x+106,y+30,"dp");parts_.push(lev);extra={lev,x,y};
+    tx(G,x+60,y-8,id,"did",{"text-anchor":"middle"});tx(G,x+60,y+84,shortV(pd[1]),"dval",{"text-anchor":"middle"});
+  }else if(c.t==="IC"){
     const r=el("rect",{x:c.x,y:c.y,width:c.w,height:c.h,rx:4,class:"dp dbody"},G);parts_.push(r);
     tx(G,c.x+c.w/2,c.ty!=null?c.y+c.ty:c.y+c.h/2+4,c.title,"did",{"text-anchor":"middle"});
     c.pins.forEach(([px,py,l,s])=>{const o={l:[5,3,"start"],r:[-5,3,"end"],t:[0,12,"middle"],b:[0,-5,"middle"]}[s];tx(G,px+o[0],py+o[1],l,"dval",{"text-anchor":o[2]});el("circle",{cx:px,cy:py,r:1.8,class:"jn"},G)});
@@ -99,8 +120,9 @@ function drawPart(g,c){
     leads.forEach(l=>{l.style.stroke=col||"";l.style.strokeOpacity=col?"1":""});
     G.classList.toggle("failed",!!bad);
     if(c.t==="BR")extra(S,bad);
+    if(c.t==="RELAY"&&extra){const cl=!!(c.closed&&c.closed(S));extra.lev.setAttribute("x2",extra.x+(cl?112:106));extra.lev.setAttribute("y2",extra.y+(cl?24:30))}
     if(c.t==="FUSE"&&extra){const blown=bad||S.fuse;extra.setAttribute("x2",blown?-4:13);extra.style.stroke=blown?C.bad:(col||"")}
-    badge.style.display=bad?"":"none";if(bad)bb.textContent={open:"X",short:"КЗ",dry:"СУХ",dead:"✕",drift:"↑R"}[bad]||"!";
+    badge.style.display=bad?"":"none";if(bad)bb.textContent={open:"X",short:"КЗ",dry:"СУХ",dead:"✕",drift:"↑R",stuck:"ЗАЛ"}[bad]||"!";
   },slot(sl,first){const key=sl==="empty"?"e":(sl&&sl.l)||"";if(key===lastSlot)return;lastSlot=key;
     G.classList.toggle("empty",sl==="empty");
     const show=first&&sl&&sl!=="empty"&&sl.l!==pd[1];tagT.style.display=show?"":"none";if(show)tagT.textContent="стоит: "+sl.l.slice(0,26);

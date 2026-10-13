@@ -9,6 +9,9 @@ $("board").appendChild(pcbSvg);pcbSvg.style.display="none";
 const pcbParts={};let pcbOn=false;
 function fpOf(id){
   if(/^LS\d/.test(id))return{k:"spk",w:46,h:46};
+  if(/^RL\d/.test(id))return{k:"relay",w:40,h:28};
+  if(/^TR\d/.test(id))return{k:"to220",w:20,h:24};
+  if(/^ZQ\d/.test(id))return{k:"xt",w:16,h:8};
   const v=P[id][1],c=catOf(id),t=TYPE_OF[id];
   if(c==="R"){const x=ohm(v),pw=/[12] Вт/.test(v);return{k:"res",w:pw?34:24,h:pw?11:8}}
   if(c==="CP"){const m=v.match(/([\d,]+)\s*мкФ\s*([\d,]+)V/),cap=m?parseFloat(m[1].replace(",",".")):47,vv=m?parseFloat(m[2].replace(",",".")):25;
@@ -50,6 +53,8 @@ function drawFp(g,id,f,x,y){
     case"var":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"var"},B);break;
     case"sip":el("rect",{x:0,y:0,width:w,height:h,rx:2,class:"sip"},B);el("text",{x:w/2,y:h/2+3,class:"mark","text-anchor":"middle"},B).textContent="~ + − ~";break;
     case"xfmr":el("rect",{x:0,y:h*.15,width:w,height:h*.7,rx:3,class:"core"},B);el("rect",{x:w*.12,y:0,width:w*.76,height:h,rx:4,class:"bobbin"},B);el("rect",{x:w*.18,y:h*.3,width:w*.64,height:h*.4,class:"tape"},B);break;
+    case"relay":el("rect",{x:0,y:0,width:w,height:h,rx:3,class:"relay"},B);el("text",{x:w/2,y:h/2+3,class:"mark","text-anchor":"middle"},B).textContent="12VDC";break;
+    case"xt":el("rect",{x:0,y:0,width:w,height:h,rx:4,class:"xtal"},B);break;
     case"spk":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"spkf"},B);el("circle",{cx:w/2,cy:h/2,r:w*.32,class:"spkc"},B);el("circle",{cx:w/2,cy:h/2,r:w*.1,class:"spkd"},B);break;
     case"toroid":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"tor"},B);el("circle",{cx:w/2,cy:h/2,r:w*.22,class:"torh"},B);break;
   }
@@ -81,7 +86,7 @@ buildPcb();
 function padsOf(f){const {w,h,k}=f;
   switch(k){case"res":case"dio":case"fuse":return[[-3,h/2],[w+3,h/2]];case"box":case"disc":return[[3,h+3],[w-3,h+3]];
     case"ecap":case"led":return[[w*.3,h/2],[w*.7,h/2]];case"to92":return[[w*.2,h],[w*.5,h],[w*.8,h]];case"to220":return[[w*.2,h+5],[w*.5,h+5],[w*.8,h+5]];
-    case"ntc":case"var":case"spk":return[[w*.25,h],[w*.75,h]];case"sip":return[[w*.12,h],[w*.37,h],[w*.62,h],[w*.87,h]];
+    case"ntc":case"var":case"spk":case"xt":return[[w*.25,h],[w*.75,h]];case"relay":return[[2,h+2],[w*.35,h+2],[w*.65,h+2],[w-2,h+2]];case"sip":return[[w*.12,h],[w*.37,h],[w*.62,h],[w*.87,h]];
     case"xfmr":return[[0,h*.25],[0,h*.75],[w,h*.25],[w,h*.75]];case"toroid":return[[w*.15,h*.85],[w*.85,h*.85]];
     case"dip4":return[[2,h+3],[w-2,h+3],[w-2,-3],[2,-3]];
     case"dip":{const n=Math.round(w/8),r=[];for(let i=0;i<n;i++)r.push([4+i*(w-8)/Math.max(1,n-1),h+3]);for(let i=n-1;i>=0;i--)r.push([4+i*(w-8)/Math.max(1,n-1),-3]);return r}}
