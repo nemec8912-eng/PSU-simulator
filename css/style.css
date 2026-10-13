@@ -271,3 +271,4 @@ body.exam #hintB,body.exam #ansB,body.exam #scSel,body.exam #scStart,body.exam .
 .trace{fill:none;stroke:#d39a52;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.55}
 .trace.gnd{stroke:#b8874a;stroke-width:3.2;opacity:.32}
 .trace.hl{stroke:#ffd27a;opacity:1;stroke-width:3}
+.screen.uneven{background:linear-gradient(90deg,#9fd0ff,#2b6cb0 55%,#173c66)}
