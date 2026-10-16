@@ -12,6 +12,8 @@ function fpOf(id){
   if(/^MG\d/.test(id))return{k:"xfmr",w:60,h:56};
   if(/^M\d/.test(id))return{k:"spk",w:38,h:38};
   if(/^SW\d/.test(id))return{k:"relay",w:30,h:16,t:"SW"};
+  if(/^J\d/.test(id))return{k:"relay",w:34,h:14,t:id==="J1"?"USB-C":"BAT"};
+  if(/^BT\d/.test(id))return{k:"relay",w:80,h:40,t:"Li-ion"};
   if(/^RL\d/.test(id))return{k:"relay",w:40,h:28};
   if(/^TR\d/.test(id))return{k:"to220",w:20,h:24};
   if(/^ZQ\d/.test(id))return{k:"xt",w:16,h:8};
