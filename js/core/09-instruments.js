@@ -1,4 +1,5 @@
 /* measuring instruments */
+const CAPN=BOARD.capName||"C1";if($("discharge"))$("discharge").textContent="Разрядить "+CAPN+" резистором";
 var TOOLS={hand:"Рука",dmm:"Мультиметр",esr:"ESR-метр",osc:"Осциллограф",tst:"Тестер деталей"};
 const DMODES=[["vdc","V⎓"],["vac","V~"],["ohm","Ω"],["beep","•)))"],["diode","▷|"],["cap","⊣⊢"]];
 var ms={tool:"hand",mode:"vdc",id:null,pin:0,trash:null};
@@ -12,7 +13,7 @@ function partPhys(id){
 function capVal(l){const m=l.match(/([\d,]+)\s*(мкФ|нФ|пФ)/);if(!m)return null;return parseFloat(m[1].replace(",","."))*({"мкФ":1,"нФ":1e-3,"пФ":1e-6}[m[2]])}
 function fmtCap(u){return u>=1?fmt(u,u>=100?0:1)+" мкФ":u>=1e-3?fmt(u*1e3,u*1e3>=100?0:1)+" нФ":fmt(u*1e6,0)+" пФ"}
 function fmtR(x){return x>=1e6?[fmt(x/1e6,2),"МΩ"]:x>=1e3?[fmt(x/1e3,x>=1e5?0:2),"кΩ"]:[fmt(x,x<10?2:1),"Ω"]}
-function windR(id){return {T2:.15,T1:1.2,LP1:.12,LF1:.4,L1:.02}[id]??.3}
+function windR(id){if(BOARD.windR&&BOARD.windR[id]!=null)return BOARD.windR[id];return {T2:.15,T1:1.2,LP1:.12,LF1:.4,L1:.02}[id]??.3}
 function diodeVf(l){if(/SR\d|MBR|STPS|1N5819|Шоттки/.test(l))return .21;if(/GBU|DB1|мост/.test(l))return .55;if(/стабилитрон|TL43/.test(l))return .72;if(/1N4148/.test(l))return .62;if(/1N400|1N540/.test(l))return .58;return .51}
 /* passive reading of a physical part (power off) */
 function passive(p,tool,mode){
@@ -46,6 +47,7 @@ function passive(p,tool,mode){
     if(cat==="TH")return r(/0,5/.test(label)?"0,5":"5,0","Ω","Тестер: резистор"+(/PTC/.test(label)?" (это позистор, его сопротивление растёт при нагреве)":"")+".");
     if(cat==="RV")return r("??","","Варистор тестер не распознаёт: при низком напряжении он не проводит.");
     if(cat==="BD")return r("4×Д","","Тестер: 4 диода по 0,55 В — мост исправен.");
+    if(cat==="SW"||cat==="MG"||cat==="MOT")return r("—","","Такую деталь тестер не проверяет — прозвоните её мультиметром.");
     return r("—","","");
   }
   // multimeter
@@ -70,6 +72,9 @@ function passive(p,tool,mode){
   let x=null,note="";
   if(f==="short")x=0.1;else if(f==="open"||f==="dead")x=Infinity;
   else if(cat==="R"){x=ohm(label);if(f==="drift")x*=2.7;note=" На плате значение может быть меньше из-за параллельных цепей."}
+  else if(cat==="SW"){x=f==="stuck"?.1:Infinity;note=f==="stuck"?" Контакты сварились: кнопка не нажата, а цепь замкнута.":" Кнопка не нажата — контакты разомкнуты. Нажмите рычажок — должно стать 0 Ω."}
+  else if(cat==="MG"){x=.3;note=" Это сопротивление нити накала. Между нитью и корпусом должно быть OL."}
+  else if(cat==="MOT")x=windR(p.id);
   else if(cat==="F")x=.1;else if(cat==="TH")x=/0,5/.test(label)?.5:4.8;else if(cat==="L")x=windR(p.id);
   else if(cat==="C"||cat==="CP"){x=Infinity;note=" Показания сначала растут — конденсатор заряжается от прибора — затем OL."}
   else x=Infinity;
@@ -96,12 +101,12 @@ function measure(){
     if(pins.length>=2){const a=NODE(pins[0][1]),b=NODE(pins[1][1]);
       if(ac){let d=Math.abs((a[1]||0)-(b[1]||0));if(MAINSN.has(pins[0][1])&&MAINSN.has(pins[1][1]))d=Math.abs(a[1]-b[1]);if(p.mode==="short")d=0;v=fmt(d,d<10?2:0);u="В~"}
       else{let d=a[0]-b[0];if(p.mode==="short")d=0;v=fmt(d,Math.abs(d)<10?2:(Math.abs(d)<100?1:0));u="В"}}
-    const note=(!S.mains&&S.bulk>30?"Вилка выдернута, но C1 всё ещё заряжен! ":"")+"На табло — напряжение между первыми двумя выводами. Ниже — каждый вывод относительно "+(SECN.has((pins[1]||pins[0]||[])[1])?"холодной":"горячей")+" земли.";
+    const note=(!S.mains&&S.bulk>30?"Вилка выдернута, но "+CAPN+" всё ещё заряжен! ":"")+"На табло — напряжение между первыми двумя выводами. Ниже — каждый вывод относительно "+(SECN.has((pins[1]||pins[0]||[])[1])?"холодной":"горячей")+" земли.";
     return{v,u,n:note,rows,where:"на плате"};
   }
   // passive modes in circuit: need power off and discharged
   if(S.mains)return{v:"⚠",u:"",n:"Блок под напряжением! Сопротивление, диоды, ёмкость и ESR меряют только на обесточенной плате. Выньте вилку из розетки.",warn:1,where:"на плате"};
-  if(S.bulk>30)return{v:"⚠",u:"",n:`На C1 ещё ${Math.round(S.bulk)} В. Сначала разрядите конденсатор — кнопка «Разрядить C1».`,warn:1,where:"на плате"};
+  if(S.bulk>30)return{v:"⚠",u:"",n:`На ${CAPN} ещё ${Math.round(S.bulk)} В. Сначала разрядите конденсатор — кнопка «Разрядить ${CAPN}».`,warn:1,where:"на плате"};
   const r=passive(p,tool,mode);return Object.assign(r,{where:"на плате (обесточена)"});
 }
 /* probes on the schematic */
@@ -164,6 +169,6 @@ function drawOsc(){
 }
 $("tools").querySelectorAll("button[data-t]").forEach(b=>b.addEventListener("click",()=>setTool(b.dataset.t)));
 $("dmodes").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>setDMode(b.dataset.m)));
-$("discharge").addEventListener("click",()=>{if(S.mains){toast("Сначала выньте вилку из розетки.");return}if(S.bulk<5){toast("C1 уже разряжен.");return}
-  st.bulk=0;log("C1 разряжен через резистор 10 кОм 5 Вт. Теперь можно мерить сопротивление и диоды.");renderMeter()});
+$("discharge").addEventListener("click",()=>{if(S.mains){toast("Сначала выньте вилку из розетки.");return}if(S.bulk<5){toast(CAPN+" уже разряжен.");return}
+  st.bulk=0;log(CAPN+" разряжен через резистор 10 кОм 5 Вт. Теперь можно мерить сопротивление и диоды.");renderMeter()});
 setInterval(()=>{if(ms.tool!=="hand"&&(ms.id||ms.trash))renderMeter()},250);

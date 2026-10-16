@@ -289,3 +289,8 @@ body.exam #hintB,body.exam #ansB,body.exam #scSel,body.exam #scStart,body.exam .
 .screen.pcbox{background:#e9ecef;padding:4px}.pcbox svg{width:100%;height:100%}
 .pcm{fill:#222;stroke:#111}.pcs{fill:#0b0d10}.pcs.on{fill:#1f5fa8}.pct{fill:#fff;font:600 7px system-ui,sans-serif;text-anchor:middle}
 .pcc{fill:#3a3f45;stroke:#222}.pcf{fill:#1d2125;stroke:#666}.pcb{stroke:#888;stroke-width:2}.pcl{fill:#333}.pcl.on{fill:#5df2a0}
+/* микроволновка */
+.screen.mwbox{background:#e9ecef;padding:4px}.mwbox svg{width:100%;height:100%}
+.mwb{fill:#dfe3e7;stroke:#889}.mww{fill:#2a2d31}.mww.on{fill:#f3d98a}.mww.open{fill:#bfc5cb}.mwp{fill:#ddd;stroke:#999}.mwr{stroke:#aaa;stroke-width:1.2}
+.mwc{stroke:#557}.mwwave{fill:none;stroke:#e6553a;stroke-width:1.4}
+.mwspin{animation:mwspin 1.2s linear infinite}@keyframes mwspin{50%{transform:scaleX(-1)}}

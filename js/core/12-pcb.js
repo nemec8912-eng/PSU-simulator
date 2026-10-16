@@ -9,6 +9,9 @@ $("board").appendChild(pcbSvg);pcbSvg.style.display="none";
 const pcbParts={};let pcbOn=false;
 function fpOf(id){
   if(/^LS\d/.test(id))return{k:"spk",w:46,h:46};
+  if(/^MG\d/.test(id))return{k:"xfmr",w:60,h:56};
+  if(/^M\d/.test(id))return{k:"spk",w:38,h:38};
+  if(/^SW\d/.test(id))return{k:"relay",w:30,h:16,t:"SW"};
   if(/^RL\d/.test(id))return{k:"relay",w:40,h:28};
   if(/^TR\d/.test(id))return{k:"to220",w:20,h:24};
   if(/^ZQ\d/.test(id))return{k:"xt",w:16,h:8};
@@ -53,7 +56,7 @@ function drawFp(g,id,f,x,y){
     case"var":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"var"},B);break;
     case"sip":el("rect",{x:0,y:0,width:w,height:h,rx:2,class:"sip"},B);el("text",{x:w/2,y:h/2+3,class:"mark","text-anchor":"middle"},B).textContent="~ + − ~";break;
     case"xfmr":el("rect",{x:0,y:h*.15,width:w,height:h*.7,rx:3,class:"core"},B);el("rect",{x:w*.12,y:0,width:w*.76,height:h,rx:4,class:"bobbin"},B);el("rect",{x:w*.18,y:h*.3,width:w*.64,height:h*.4,class:"tape"},B);break;
-    case"relay":el("rect",{x:0,y:0,width:w,height:h,rx:3,class:"relay"},B);el("text",{x:w/2,y:h/2+3,class:"mark","text-anchor":"middle"},B).textContent="12VDC";break;
+    case"relay":el("rect",{x:0,y:0,width:w,height:h,rx:3,class:"relay"},B);el("text",{x:w/2,y:h/2+3,class:"mark","text-anchor":"middle"},B).textContent=f.t||"12VDC";break;
     case"xt":el("rect",{x:0,y:0,width:w,height:h,rx:4,class:"xtal"},B);break;
     case"spk":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"spkf"},B);el("circle",{cx:w/2,cy:h/2,r:w*.32,class:"spkc"},B);el("circle",{cx:w/2,cy:h/2,r:w*.1,class:"spkd"},B);break;
     case"toroid":el("circle",{cx:w/2,cy:h/2,r:w/2,class:"tor"},B);el("circle",{cx:w/2,cy:h/2,r:w*.22,class:"torh"},B);break;

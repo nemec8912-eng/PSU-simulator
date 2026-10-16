@@ -1,6 +1,6 @@
 /* rendering */
 const svg=$("sch");
-const HALF={R:13,FUSE:13,NTC:13,VAR:13,C:3,CP:3,D:6,DZ:6,LED:6};
+const HALF={R:13,FUSE:13,NTC:13,VAR:13,C:3,CP:3,D:6,DZ:6,LED:6,SW:12};
 const parts={};   // id -> [painters]
 const wires=[];   // {pts,len,segs,net,flow,dots,base}
 const flags=[];
@@ -92,6 +92,7 @@ function drawPart(g,c){
     const Pp=(t,a,cls="dp")=>{const e=el(t,a,Bd);e.setAttribute("class",cls);parts_.push(e);return e};
     switch(c.t){
       case"R":Pp("rect",{x:-13,y:-5,width:26,height:10},"dp dbody");break;
+      case"SW":Pp("circle",{cx:-12,cy:0,r:2.4});Pp("circle",{cx:12,cy:0,r:2.4});extra=Pp("line",{x1:-10,y1:-1,x2:10,y2:-11});break;
       case"FUSE":Pp("rect",{x:-13,y:-5,width:26,height:10},"dp dbody");extra=Pp("line",{x1:-13,y1:0,x2:13,y2:0});break;
       case"NTC":Pp("rect",{x:-13,y:-5,width:26,height:10},"dp dbody");Pp("path",{d:"M-11,9 L9,-9 H14"});break;
       case"VAR":Pp("rect",{x:-13,y:-5,width:26,height:10},"dp dbody");Pp("path",{d:"M-16,9 H-11 L11,-9"});break;
@@ -121,6 +122,7 @@ function drawPart(g,c){
     G.classList.toggle("failed",!!bad);
     if(c.t==="BR")extra(S,bad);
     if(c.t==="RELAY"&&extra){const cl=!!(c.closed&&c.closed(S));extra.lev.setAttribute("x2",extra.x+(cl?112:106));extra.lev.setAttribute("y2",extra.y+(cl?24:30))}
+    if(c.t==="SW"&&extra){const cl=!!(c.closed&&c.closed(S));extra.setAttribute("x2",cl?12:10);extra.setAttribute("y2",cl?-2:-11)}
     if(c.t==="FUSE"&&extra){const blown=bad||S.fuse;extra.setAttribute("x2",blown?-4:13);extra.style.stroke=blown?C.bad:(col||"")}
     badge.style.display=bad?"":"none";if(bad)bb.textContent={open:"X",short:"КЗ",dry:"СУХ",dead:"✕",drift:"↑R",stuck:"ЗАЛ"}[bad]||"!";
   },slot(sl,first){const key=sl==="empty"?"e":(sl&&sl.l)||"";if(key===lastSlot)return;lastSlot=key;

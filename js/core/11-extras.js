@@ -58,7 +58,7 @@ $("labV").addEventListener("change",e=>{st.lab.v=Math.max(0,Math.min(30,parseFlo
 $("labI").addEventListener("change",e=>{st.lab.lim=parseFloat(e.target.value)});
 $("labOn").addEventListener("click",()=>{
   if(!st.lab.on){if(S.mains){toast("Сначала выньте вилку из розетки: ЛБП подключают только к обесточенной плате.");return}
-    if(S.bulk>30){toast(`На C1 ещё ${Math.round(S.bulk)} В. Разрядите его (кнопка в окне прибора).`);return}}
+    if(S.bulk>30){toast(`На ${CAPN} ещё ${Math.round(S.bulk)} В. Разрядите его (кнопка в окне прибора).`);return}}
   st.lab.on=!st.lab.on;labUi();log(st.lab.on?`ЛБП ${fmt(st.lab.v,1)} В, ограничение ${fmt(st.lab.lim,1)} А подключён к шине ${LAB_RAILS[st.lab.rail].n}.`:"ЛБП отключён.")});
 setInterval(()=>{const L=S.lab;$("labVo").textContent=(L?fmt(L.v,2):"0,00")+" В";$("labIo").textContent=(L?fmt(L.i,3):"0,000")+" А";
   const cc=$("labCC");cc.textContent=L?(L.cc?"CC":"CV"):"—";cc.className=L&&L.cc?"cc":"";},150);
