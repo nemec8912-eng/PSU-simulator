@@ -294,3 +294,8 @@ body.exam #hintB,body.exam #ansB,body.exam #scSel,body.exam #scStart,body.exam .
 .mwb{fill:#dfe3e7;stroke:#889}.mww{fill:#2a2d31}.mww.on{fill:#f3d98a}.mww.open{fill:#bfc5cb}.mwp{fill:#ddd;stroke:#999}.mwr{stroke:#aaa;stroke-width:1.2}
 .mwc{stroke:#557}.mwwave{fill:none;stroke:#e6553a;stroke-width:1.4}
 .mwspin{animation:mwspin 1.2s linear infinite}@keyframes mwspin{50%{transform:scaleX(-1)}}
+/* сварочный инвертор */
+.screen.wdbox{background:#e9ecef;padding:4px}.wdbox svg{width:100%;height:100%}
+.wdb{fill:#1f5fa8;stroke:#123}.wdh{fill:#333}.wdh.on{fill:#ffcc33}.wdk{fill:#222;stroke:#999}.wdn{stroke:#fff;stroke-width:1.5}
+.wde{stroke:#666;stroke-width:3;stroke-linecap:round}.wdm{fill:#888}.wdarc{fill:#bfe6ff;opacity:.85;animation:wdarc .08s infinite alternate}
+@keyframes wdarc{to{opacity:.4}}

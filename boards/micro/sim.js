@@ -58,6 +58,7 @@ function sim(now,dt){
   if(!shortC&&t1Pre&&is("T1","short"))shortC="межвитковое замыкание в трансформаторе T1";
   if(st.lamp){if(shortC){if(!st.surge){st.surge={t0:now,cause:shortC,nets:["acS"],lamp:1};if(!st.lampWarn){st.lampWarn=1;log("Лампа горит ярко — КЗ. Предохранитель цел.",true)}}}else if(st.surge&&now-st.surge.t0>700)st.surge=null;if(!shortC&&!st.surge)st.lampWarn=0}
   else if(!st.surge&&shortC)surgeStart(shortC,["acS"],now);
+  if(st.surge&&!shortC&&!st.lamp&&!st.surge.lamp)st.surge=null;
   let surge=!!st.surge;
   if(surge&&!st.lamp&&now-st.surge.t0>(shortC&&shortC.includes("SW3")?150:900)){st.fuse=true;st.surge=null;surge=false;if(st.bug){st.bug=false;log("«Жучок» не сгорел — сгорели контакты SW1.",true)}else log("Сгорел предохранитель F1.",true)}
   const t1On=t1Pre&&!surge&&!st.fuse&&okp("F1");

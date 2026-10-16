@@ -70,8 +70,8 @@ function drawPart(g,c){
     parts_.push(el("path",{d:`M${dx},${dy} V${cy-8} H${cx-7} M${sx},${sy} V${cy+8} H${cx-7} M${cx-7},${cy-11} V${cy+11}`,class:"dp"},G));
     parts_.push(el("path",{d:`M${gx},${gy} H${cx-12} M${cx-12},${cy-9} V${cy+9}`,class:"dp"},G));
     fills.push(el("path",{d:`M${cx-7},${cy+8} l6,-3 v6 Z`},G));
-    if(c.lq){tx(G,cx+c.lq[0],cy+c.lq[1],id,"did",{"text-anchor":"end"});tx(G,cx+c.lq[0],cy+c.lq[1]+11,pd[1].split(" ")[1]||"","dval",{"text-anchor":"end"})}
-    else{tx(G,cx+20,cy-6,id,"did");tx(G,cx+20,cy+6,pd[1].split(" ")[1]||"","dval")}
+    if(c.lq){tx(G,cx+c.lq[0],cy+c.lq[1],id,"did",{"text-anchor":"end"});tx(G,cx+c.lq[0],cy+c.lq[1]+11,pd[1].split(" · ")[0].replace(/^MOSFET /,""),"dval",{"text-anchor":"end"})}
+    else{tx(G,cx+20,cy-6,id,"did");tx(G,cx+20,cy+6,pd[1].split(" · ")[0].replace(/^MOSFET /,""),"dval")}
   }else if(c.t==="BJT"){
     const [bx,by]=c.b,[cx_,cy_]=c.c,[ex,ey]=c.e,cx=cx_,m=by;
     el("circle",{cx:cx-3,cy:m,r:18,class:"hit"},G);el("circle",{cx:cx-3,cy:m,r:17,class:"dp"},G);

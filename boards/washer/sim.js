@@ -26,6 +26,7 @@ function sim(now,dt){
   if(pre){if(is("RV1","short"))shortC="пробит варистор";else if(is("C1","short")&&!is("D1","open"))shortC="пробит C1";else if(is("IC1","short")&&okp("L1"))shortC="пробит ключ LNK304";}
   if(st.lamp){if(shortC){if(!st.surge){st.surge={t0:now,cause:shortC,nets:["dc"],lamp:1};if(!st.lampWarn){st.lampWarn=1;log("Лампа горит ярко — на плате КЗ. Предохранитель цел.",true)}}}else if(st.surge&&now-st.surge.t0>700)st.surge=null;if(!shortC&&!st.surge)st.lampWarn=0}
   else if(!st.surge&&shortC)surgeStart(shortC,["dc"],now);
+  if(st.surge&&!shortC&&!st.lamp&&!st.surge.lamp)st.surge=null;
   let surge=!!st.surge;
   if(surge&&!st.lamp&&now-st.surge.t0>1000){st.fuse=true;st.surge=null;surge=false;if(st.bug){st.bug=false;log("«Жучок» не сгорел — выгорела дорожка у моста.",true)}else log("Сгорел предохранитель F1.",true)}
   const ac=pre&&!surge;
