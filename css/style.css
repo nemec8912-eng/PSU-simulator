@@ -485,3 +485,19 @@ body.exam .norm{display:none!important}
   .bar .quick-tools{order:8}
   .bar .more:not(.quick-tools){order:9}
 }
+
+/* Дополнительные проверки и маршрут ремонта */
+.cheat th:last-child{min-width:180px}
+.cheat .check-col{color:var(--muted);font-size:12.5px;max-width:260px}
+.route-panel{margin-top:10px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.route-panel .dim{font-size:12.5px;margin:6px 0}
+.route-step{margin-top:9px;padding:10px;background:var(--bg);border-radius:9px}
+.route-step>span{font:600 11px var(--f-mono);color:var(--muted)}
+.route-step p{margin:4px 0 0;font-weight:600}
+.route-history{font-size:12px;color:var(--muted);padding-left:18px;margin:10px 0}
+.route-history li{margin:4px 0}
+.route-history strong{color:var(--ink)}
+.route-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.route-actions button:first-child{background:var(--ink);color:var(--panel)}
+body.exam #routeB,body.exam #routePanel{display:none!important}
+@media(max-width:760px){.cheat{min-width:650px}.route-panel{padding:10px}}
