@@ -132,3 +132,54 @@ renderGame=function(){_renderGame4();const h=$("hints");[...h.children].forEach(
 $("hints").addEventListener("click",e=>{const b=e.target.closest(".pref");if(b){if(mobile())setMt("board");pick(b.dataset.id,true);flashPart(b.dataset.id)}});
 if(game.on)renderGame();
 if(sel)highlight(sel);
+
+/* ---------- интерактивный универсальный маршрут диагностики ---------- */
+const ROUTE_STEPS={
+  power:{text:"Проверь выбранный узел: питание приходит на его вход?",yes:"output",no:"input"},
+  input:{text:"На обесточенной схеме проверь входную цепь, предохранитель, соединения. Обрыв найден?",yes:"repair",no:"control"},
+  output:{text:"Измерь выходное напряжение и сравни с нормой. Оно в пределах нормы?",yes:"signal",no:"load"},
+  signal:{text:"Проверь сигнал разрешения работы или управляющий сигнал. Он присутствует?",yes:"next",no:"control"},
+  load:{text:"При отключённом питании проверь выход на КЗ и перегрузку. Нашлась неисправность нагрузки?",yes:"repair",no:"feedback"},
+  feedback:{text:"Проверь цепь обратной связи и фильтрующие элементы. Отклонение найдено?",yes:"repair",no:"control"},
+  control:{text:"Проверь питание управляющей микросхемы, сигналы на выводах, датчики и защиту. Затем вернись к тому узлу, где обнаружено первое отклонение."},
+  next:{text:"Предыдущий узел исправен. Перейди к следующей ступени схемы и повтори сравнение входа, выхода и сигнала управления."},
+  repair:{text:"Устрани найденную причину, затем повтори измерения. Если есть вторичные повреждения, проверь их до повторного включения."}
+};
+let routeTrail=[],routeCurrent="power",routeVisible=false;
+{const b=document.createElement("button");b.type="button";b.id="routeB";b.textContent="Маршрут диагностики";b.setAttribute("aria-expanded","false");
+ $("hintB").before(b);
+ const p=document.createElement("div");p.id="routePanel";p.className="route-panel";p.hidden=true;
+ $("repair").querySelector(".rp-act").after(p);
+ b.addEventListener("click",()=>{routeVisible=!routeVisible;b.setAttribute("aria-expanded",String(routeVisible));renderRoute()});
+ p.addEventListener("click",e=>{
+   const b=e.target.closest("[data-route]");if(!b)return;
+   const answer=b.dataset.route;
+   if(answer==="restart"){routeTrail=[];routeCurrent="power"}
+   else if(answer==="back"){const previous=routeTrail.pop();routeCurrent=previous?previous.step:"power"}
+   else if((answer==="yes"||answer==="no")&&ROUTE_STEPS[routeCurrent]?.[answer]){
+     routeTrail.push({step:routeCurrent,answer});
+     routeCurrent=ROUTE_STEPS[routeCurrent][answer]
+   }
+   renderRoute()
+ })
+}
+function renderRoute(){
+  const p=$("routePanel");
+  p.hidden=!routeVisible||exam.on||!game.on;
+  if(p.hidden)return;
+  const step=ROUTE_STEPS[routeCurrent];
+  const history=routeTrail.length?'<ol class="route-history">'+routeTrail.map(x=>
+    '<li>'+ROUTE_STEPS[x.step].text+' <strong>'+(x.answer==="yes"?"Да":"Нет")+'</strong></li>').join("")+'</ol>':"";
+  p.innerHTML='<b>Универсальный порядок диагностики</b>'+
+    '<p class="dim">Вы сами оцениваете показания прибора. Маршрут не определяет неисправность автоматически и не раскрывает ответ задачи.</p>'+
+    history+'<div class="route-step"><span>Шаг '+(routeTrail.length+1)+'</span><p>'+step.text+'</p></div>'+
+    '<div class="route-actions">'+
+    (step.yes?'<button type="button" data-route="yes">Да</button><button type="button" data-route="no">Нет</button>':
+      '<button type="button" data-route="restart">Начать заново</button>')+
+    (routeTrail.length?'<button type="button" data-route="back">Назад</button>':"")+
+    '</div>'
+}
+const _startScenarioRoute=startScenario;
+startScenario=function(i){_startScenarioRoute(i);routeTrail=[];routeCurrent="power";renderRoute()};
+const _renderGameRoute=renderGame;
+renderGame=function(){_renderGameRoute();if(routeVisible)renderRoute()};
