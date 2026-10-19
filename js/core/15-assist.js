@@ -21,13 +21,36 @@ function onWire(w,[x,y]){return w.segs.some(([,l,a,b])=>{const minx=Math.min(a[0
 const NETS_OF={};
 Object.entries(SCH).forEach(([pid,sc])=>(sc.c||[]).forEach(c=>{if(!P[c.id])return;const T=termsOf(c);const set=NETS_OF[c.id]=NETS_OF[c.id]||new Set();
   wires.forEach((w,i)=>{if(WIRE_PAN[i]!==pid||GROUND.test(w.net))return;if(T.some(t=>onWire(w,t)))set.add(w.net)})}));
-function highlight(id){
-  const on=OPT.hl&&id&&NETS_OF[id]&&NETS_OF[id].size&&!(game.on&&!game.reveal&&false);
-  svg.classList.toggle("hl",!!on);
-  wires.forEach(w=>{const h=on&&NETS_OF[id].has(w.net);w.base.classList.toggle("on",!!h);w.dots.forEach(d=>d.classList.toggle("dot",!h))});
-  flags.forEach(f=>f.r.parentNode.classList.toggle("on",!!(on&&NETS_OF[id].has(f.net))));
-  Object.entries(parts).forEach(([k,arr])=>{const h=on&&(k===id||[...(NETS_OF[k]||[])].some(n=>NETS_OF[id].has(n)));arr.forEach(p=>p.G.classList.toggle("on",!!h))});
+let selectedWireNet=null;
+function paintCircuit(netset,focusId){
+  const on=!!(OPT.hl&&netset&&netset.size);
+  svg.classList.toggle("hl",on);
+  wires.forEach(w=>{
+    const active=on&&netset.has(w.net);
+    w.base.classList.toggle("on",!!active);
+    w.dots.forEach(d=>d.classList.toggle("dot",!active))
+  });
+  flags.forEach(f=>f.r.parentNode.classList.toggle("on",!!(on&&netset.has(f.net))));
+  Object.entries(parts).forEach(([id,arr])=>{
+    const active=on&&(id===focusId||[...(NETS_OF[id]||[])].some(n=>netset.has(n)));
+    arr.forEach(p=>p.G.classList.toggle("on",!!active))
+  });
 }
+function highlight(id){
+  selectedWireNet=null;
+  paintCircuit(id?NETS_OF[id]:null,id)
+}
+function highlightNet(net){
+  if(!net)return;
+  if(!OPT.hl){OPT.hl=true;$("optHl").checked=true;store.set("opt.hl",true)}
+  if(selectedWireNet===net){selectedWireNet=null;paintCircuit(null,null);return}
+  selectedWireNet=net;paintCircuit(new Set([net]),null)
+}
+// Прозрачная, удобная для нажатия область поверх каждого тонкого провода.
+wires.forEach(w=>{
+  const hit=el("path",{"d":w.base.getAttribute("d"),"class":"wire-hit","aria-label":"Подсветить цепь "+w.net},w.base.parentNode);
+  hit.addEventListener("click",e=>{e.stopPropagation();highlightNet(w.net)});
+});
 const _pick4=pick;pick=function(id,scroll){_pick4(id,scroll);highlight(id)};
 document.addEventListener("opt",e=>{if(e.detail==="hl")highlight(sel)});
 $("board").addEventListener("click",e=>{if(e.target===svg||e.target.classList.contains("prect"))highlight(null)});
