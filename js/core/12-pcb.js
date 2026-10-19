@@ -105,7 +105,7 @@ const traceG=el("g",{class:"traces","aria-hidden":"true"});const traceOf={};
     const inT=[pts[0]],out=pts.slice(1),segs=[];
     while(out.length){let best=null;inT.forEach(a=>out.forEach((b,j)=>{const d=Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]);if(!best||d<best.d)best={a,b,j,d}}));
       segs.push(`M${best.a[0].toFixed(1)},${best.a[1].toFixed(1)} H${best.b[0].toFixed(1)} V${best.b[1].toFixed(1)}`);inT.push(best.b);out.splice(best.j,1)}
-    const path=el("path",{d:segs.join(" "),class:"trace"+(gnd?" gnd":"")},traceG);
+    const path=el("path",{d:segs.join(" "),class:"trace"+(gnd?" gnd":""),"data-n":n},traceG);
     pts.forEach(([,,id])=>{(traceOf[id]=traceOf[id]||new Set()).add(path)})});
   const groups=[...pcbSvg.querySelectorAll(":scope > g")];
   pcbSvg.appendChild(traceG);groups.forEach(g=>pcbSvg.appendChild(g));

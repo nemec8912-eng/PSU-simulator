@@ -1,60 +1,28 @@
-"""Создаёт HTML-страницы всех плат из общего шаблона (index.html = Samsung).
-Запуск из корня проекта: python3 tools/pages.py"""
-import re
-BOARDS=[
- dict(id="samsung",file="index.html",nav="Samsung BN44 (ТВ)"),
- dict(id="adapter",file="adapter.html",nav="Адаптер 12 В"),
- dict(id="led",file="led.html",nav="LED-подсветка ТВ",title="LED-подсветка ТВ",h1="Драйвер LED-подсветки телевизора: полная схема",
-   lead="Повышающий преобразователь 24 → 110 В и два канала тока по 350 мА для линеек светодиодов. Самая частая поломка телевизоров: звук есть, а изображения нет. Точки на проводах — это ток. Выведите любую деталь из строя и посмотрите, как гаснет подсветка.",
-   btn="Пульт: включить ТВ",mains="Питание 24 В: есть",card="Что видно на экране",ledT="индикатор ТВ",
-   foot="Схема собрана по типовой архитектуре драйверов подсветки (boost + линейные ключи тока, контроллеры OZ9957/MP3394). Номиналы типичные, на конкретной плате они отличаются."),
- dict(id="amp",file="amp.html",nav="Усилитель звука",title="Усилитель на TDA7294",h1="Усилитель звука на TDA7294: полная схема",
-   lead="Сетевой трансформатор, выпрямитель ±35 В и микросхема TDA7294 с динамиком 8 Ом. Неисправности слышны: фон, хрип, свист, тишина — и видны на осциллографе. Выведите любую деталь из строя и послушайте, что изменится.",
-   btn="Музыка: включить",mains="Вилка в розетке",card="Что слышно из динамика",ledT="индикатор питания",
-   foot="Схема собрана по типовому включению TDA7294 из документации производителя (усиление 33, MUTE/STBY через RC, цепь Цобеля). Номиналы типичные."),
- dict(id="atx",file="atx.html",nav="Блок питания ATX",title="Блок питания ATX",h1="Компьютерный блок питания ATX на TL494: полная схема",
-   lead="Дежурка +5VSB, ШИМ-контроллер TL494, полумост на двух транзисторах и выходы +12 В / +5 В с групповым дросселем. Блок запускается сигналом PS_ON от материнской платы и отвечает ей сигналом Power Good. Выведите любую деталь из строя и нажмите кнопку компьютера.",
-   btn="Кнопка ПК: включить",mains="Вилка в розетке",card="Что происходит с компьютером",ledT="дежурка на материнке",
-   foot="Схема собрана по классической архитектуре ATX-блоков (TL494/KA7500, полумост, ДГС, супервизор на LM339). Номиналы типичные, на конкретном блоке они отличаются."),
- dict(id="micro",file="micro.html",nav="Микроволновка",title="Микроволновая печь",h1="Микроволновая печь: полная схема",
-   lead="Дверные микровыключатели, реле, высоковольтный трансформатор, удвоитель 4 кВ на конденсаторе и диоде, магнетрон и плата управления. Видно, почему сгорает предохранитель при открывании дверцы и почему печь крутится, но не греет. Выведите любую деталь из строя и запустите разогрев.",
-   btn="Старт 30 с",mains="Вилка в розетке",card="Что видно у печи",ledT="дисплей",
-   foot="Схема собрана по типовой схеме бытовых микроволновок (MOT, удвоитель на HV-конденсаторе и диоде, три дверных микровыключателя, плата управления с реле). Номиналы типичные."),
- dict(id="weld",file="weld.html",nav="Сварочный инвертор",title="Сварочный инвертор",h1="Сварочный инвертор на IGBT: полная схема",
-   lead="Плавный пуск с реле, шина 310 В, дежурка +15 В, ШИМ UC3845, трансформатор затворов, косой мост на двух IGBT, выходной выпрямитель и датчик тока. Видно, почему сгорает резистор плавного пуска и почему новый IGBT пробивается снова. Выведите любую деталь из строя и зажгите дугу.",
-   btn="Зажечь дугу",mains="Вилка в розетке",card="Что происходит с аппаратом",ledT="сеть",
-   foot="Схема собрана по типовой архитектуре бытовых сварочных инверторов (косой мост на IGBT, UC3845, трансформатор затворов, трансформатор тока). Номиналы типичные."),
- dict(id="phone",file="phone.html",nav="Зарядка телефона",title="Цепь зарядки телефона",h1="Цепь зарядки смартфона: от разъёма USB-C до аккумулятора",
-   lead="Разъём USB-C с резисторами CC, защита от выбросов и перенапряжения, контроллер заряда BQ25601, аккумулятор с термистором и защитой DW01. Видно, почему телефон заряжается только одной стороной штекера и почему пишет «зарядка приостановлена». Выведите любую деталь из строя и включите телефон.",
-   btn="Телефон: включить",mains="Зарядка подключена",card="Что показывает телефон",ledT="индикатор зарядки",
-   foot="Схема собрана по типовой схеме заряда смартфонов (USB-C с CC 5,1 кОм, OVP-ключ, импульсный контроллер заряда с NVDC, защита DW01 + FS8205 в аккумуляторе). Номиналы типичные."),
- dict(id="washer",file="washer.html",nav="Стиральная машина",title="Плата стиральной машины",h1="Плата управления стиральной машины: полная схема",
-   lead="Бестрансформаторный блок питания 12 В на LNK304, микроконтроллер, реле ТЭНа, симисторы насоса и замка двери, датчик температуры. Неисправности видны как коды ошибок на дисплее: HE, dE, 5E, tE. Выведите любую деталь из строя и запустите программу стирки.",
-   btn="Старт программы",mains="Вилка в розетке",card="Что показывает машина",ledT="индикатор сети",
-   foot="Схема собрана по типовой архитектуре модулей управления стиральных машин (LNK304 + 78L05 + МК, реле ТЭНа, симисторы через MOC3021). Номиналы типичные, на конкретной модели они отличаются."),
-]
-EXTRA=[dict(file="extra/psu-basics.html",nav="Основы: блок-схема")]
+"""Создаёт HTML-страницы всех плат из шаблона tools/template.html и списка tools/boards.json.
+Запуск из корня проекта: python3 tools/pages.py
+Чтобы добавить плату: допишите её в boards.json (id, file, nav, group, icon, desc, title, h1, lead,
+btn, mains, card, ledT, foot, rhint) и запустите скрипт."""
+import json, re, html, os
+ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+B=json.load(open(os.path.join(ROOT,"tools/boards.json"),encoding="utf-8"))
+TPL=open(os.path.join(ROOT,"tools/template.html"),encoding="utf-8").read()
+EXTRA=[dict(file="extra/psu-basics.html",nav="Основы: блок-схема",group="Теория",icon="book",desc="Как устроен импульсный блок питания")]
+CORE=["01-helpers","*parts","*schematic","04-render","*sim","06-loop","07-kit","*scenarios","08-workshop","*probe","09-instruments","*device","10-ui","11-extras","12-pcb","13-exam","14-ux","15-assist","16-pcbflow"]
+def ntasks(bid):
+    s=open(os.path.join(ROOT,f"boards/{bid}/scenarios.js"),encoding="utf-8").read()
+    return len(re.findall(r'\{t:"',s))
 def nav(cur):
-    items=[f'<a href="{b["file"]}"'+(' aria-current="page"' if b["id"]==cur else '')+f'>{b["nav"]}</a>' for b in BOARDS]
-    items+=[f'<a href="{e["file"]}">{e["nav"]}</a>' for e in EXTRA]
-    return '<nav class="boards" aria-label="Платы">'+"".join(items)+'</nav>'
-tpl=open("index.html",encoding="utf-8").read()
-tpl=re.sub(r'<nav class="boards".*?</nav>','{NAV}',tpl,flags=re.S)
-for b in BOARDS:
-    if b["id"] in("samsung","adapter"):
-        s=open(b["file"],encoding="utf-8").read()
-        s=re.sub(r'<nav class="boards".*?</nav>',nav(b["id"]),s,flags=re.S)
-    else:
-        s=tpl.replace("{NAV}",nav(b["id"]))
-        s=s.replace("boards/samsung/",f'boards/{b["id"]}/')
-        s=re.sub(r"<title>.*?</title>",f'<title>{b["title"]}</title>',s)
-        s=re.sub(r"<h1>.*?</h1>",f'<h1>{b["h1"]}</h1>',s)
-        s=re.sub(r'<p class="lead">.*?</p>',f'<p class="lead">{b["lead"]}</p>',s,flags=re.S)
-        s=re.sub(r'<button id="bTv" type="button">.*?</button>',f'<button id="bTv" type="button">{b["btn"]}</button>',s)
-        s=re.sub(r'<button id="bMains" type="button" class="on">.*?</button>',f'<button id="bMains" type="button" class="on">{b["mains"]}</button>',s)
-        s=re.sub(r"<h3>Что происходит с телевизором</h3>",f'<h3>{b["card"]}</h3>',s)
-        s=re.sub(r'<span id="ledT">.*?</span>',f'<span id="ledT">{b["ledT"]}</span>',s)
-        s=re.sub(r'<p class="hint">Схема собрана по типовой.*?</p>',f'<p class="hint">{b["foot"]}</p>',s,flags=re.S)
-        s=s.replace("Затем включите ТВ пультом.","Затем включите устройство.")
-    open(b["file"],"w",encoding="utf-8").write(s)
+    items=[]
+    for b in B+EXTRA:
+        bid=b.get("id","")
+        n=ntasks(bid) if bid else 0
+        items.append(f'<a href="{b["file"]}" data-id="{bid}" data-group="{b["group"]}" data-icon="{b["icon"]}" data-desc="{html.escape(b["desc"])}" data-n="{n}"'+(' aria-current="page"' if bid==cur else '')+f'>{b["nav"]}</a>')
+    return '<nav class="boards" id="devNav" aria-label="Устройства" hidden>'+"".join(items)+'</nav>'
+for b in B:
+    scripts="\n".join(f'<script src="{("boards/"+b["id"]+"/"+c[1:]) if c[0]=="*" else "js/core/"+c}.js"></script>' for c in CORE)
+    s=TPL
+    for k,v in dict(TITLE=b["title"],H1=b["h1"],LEAD=b["lead"],BTN=b["btn"],MAINS=b["mains"],CARD=b["card"],LEDT=b["ledT"],FOOT=b["foot"],RHINT=b["rhint"],
+                    BOARD=b["id"],NAVNAME=b["nav"],NAV=nav(b["id"]),SCRIPTS=scripts).items():
+        s=s.replace("{"+k+"}",v)
+    open(os.path.join(ROOT,b["file"]),"w",encoding="utf-8").write(s)
     print("ok",b["file"])
