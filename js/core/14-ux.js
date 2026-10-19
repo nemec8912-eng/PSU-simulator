@@ -90,12 +90,32 @@ const _pick3=pick;pick=function(id,scroll){_pick3(id,scroll);if(mobile()&&docume
 setInterval(()=>{const m=$("mini");if(!mobile()||ms.tool==="hand"||document.body.dataset.mt==="tools"||!(ms.id||ms.trash)){m.hidden=true;return}
   m.hidden=false;$("miniT").textContent=($("mTool").textContent||"")+" · "+(ms.id||(ms.trash&&ms.trash.id)||"");$("miniV").textContent=$("mOsc").hidden?($("mV").textContent+" "+$("mU").textContent):"∿ сигнал"},300);
 /* ---------- шпаргалка ---------- */
+function checkAdvice(id){
+  const c=catOf(id);
+  if(["C","CP"].includes(c))return "После разрядки: ёмкость и ESR";
+  if(["R","L","FUSE","NTC","VAR","SW"].includes(c))return "При снятом питании: сопротивление и прозвонка";
+  if(["D","DZ","LED","BR"].includes(c))return "При снятом питании: проверка диодов";
+  if(["Q","BJT","TRIAC","PT","IC"].includes(c))return "Питание выводов, управляющий сигнал, КЗ";
+  if(c==="RELAY")return "Сопротивление катушки и контакты";
+  return "Напряжения на выводах, затем проверка детали"
+}
 function cheatHtml(){
-  const rows={};Object.entries(P).forEach(([id,p])=>Object.entries(p[4]).forEach(([m,[why,sym]])=>{const k=sym.join(" · ");(rows[k]=rows[k]||{sym,list:[]}).list.push([id,m,p[3]])}));
+  const rows={};
+  Object.entries(P).forEach(([id,p])=>{
+    if(!p[4])return;
+    Object.entries(p[4]).forEach(([m,[why,sym]])=>{
+      const k=sym.join(" · ");
+      (rows[k]=rows[k]||{sym,list:[]}).list.push([id,m])
+    })
+  });
   const arr=Object.values(rows).sort((a,b)=>b.list.length-a.list.length);
-  return `<p class="dim">${BOARD.name}: что сломалось → какие детали проверить. Нажмите на деталь, чтобы найти её на схеме.</p><table class="cheat"><thead><tr><th>Признак</th><th>Вероятные детали и поломка</th></tr></thead><tbody>`+
-    arr.map(r=>`<tr><td>${r.sym.join("<br>")}</td><td><div class="pl">${r.list.map(([id,m])=>`<span class="chip"><button type="button" class="pref" data-id="${id}" title="${P[id][0]}">${id}</button><em>${ML[m].toLowerCase()}</em></span>`).join("")}</div></td></tr>`).join("")+
-    `</tbody></table><div class="mprint"><button type="button" id="cheatPrint">Распечатать</button></div>`}
+  return '<p class="dim">'+BOARD.name+': симптом → подозреваемые детали → проверка. Это учебные рекомендации, не замена сервис-мануалу. На реальной плате перед прозвонкой отключайте питание и безопасно разряжайте конденсаторы.</p>'+
+  '<table class="cheat"><thead><tr><th>Признак</th><th>Вероятные детали</th><th>Что измерить</th></tr></thead><tbody>'+
+  arr.map(r=>'<tr><td>'+r.sym.join("<br>")+'</td><td><div class="pl">'+r.list.map(([id,m])=>
+    '<span class="chip"><button type="button" class="pref" data-id="'+id+'" title="'+P[id][0]+'">'+id+'</button><em>'+ML[m].toLowerCase()+'</em></span>').join("")+
+    '</div></td><td class="check-col">'+[...new Set(r.list.map(([id])=>checkAdvice(id)))].join("; ")+'</td></tr>').join("")+
+  '</tbody></table><div class="mprint"><button type="button" id="cheatPrint">Распечатать</button></div>'
+}
 $("cheatB").addEventListener("click",()=>{openModal("Шпаргалка: признак → детали",cheatHtml());$("cheatPrint").addEventListener("click",()=>print())});
 $("modB").addEventListener("click",e=>{const b=e.target.closest(".pref[data-id]");if(b){closeModal();findGo(b.dataset.id)}const r=e.target.closest("[data-rep]");if(r){closeModal();const i=SCEN.findIndex(s=>s.t===r.dataset.rep);if(i>=0){if(!game.on)setMode(true);$("scSel").value=i;startScenario(i);if(mobile())setMt("task")}}});
 /* ---------- прогресс ---------- */
