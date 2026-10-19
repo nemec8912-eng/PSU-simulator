@@ -7,7 +7,7 @@ ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 B=json.load(open(os.path.join(ROOT,"tools/boards.json"),encoding="utf-8"))
 TPL=open(os.path.join(ROOT,"tools/template.html"),encoding="utf-8").read()
 EXTRA=[dict(file="extra/psu-basics.html",nav="Основы: блок-схема",group="Теория",icon="book",desc="Как устроен импульсный блок питания")]
-CORE=["01-helpers","*parts","*schematic","04-render","*sim","06-loop","07-kit","*scenarios","08-workshop","*probe","09-instruments","*device","10-ui","11-extras","12-pcb","13-exam","14-ux","15-assist","16-pcbflow"]
+CORE=["01-helpers","*parts","*schematic","04-render","*sim","06-loop","07-kit","*scenarios","08-workshop","*probe","09-instruments","*device","10-ui","11-extras","12-pcb","13-exam","14-ux","15-assist","16-pcbflow","17-more"]
 def ntasks(bid):
     s=open(os.path.join(ROOT,f"boards/{bid}/scenarios.js"),encoding="utf-8").read()
     return len(re.findall(r'\{t:"',s))

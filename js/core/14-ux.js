@@ -80,9 +80,9 @@ document.body.dataset.mt="board";
 {const b=document.createElement("button");b.type="button";b.id="mobileDevB";b.textContent="Состояние устройства и журнал";b.setAttribute("aria-expanded","false");
  $("partCard").appendChild(b);
  b.addEventListener("click",()=>{const open=!document.body.classList.contains("show-device");document.body.classList.toggle("show-device",open);b.setAttribute("aria-expanded",String(open));if(open)$("devCard").scrollIntoView({block:"nearest",behavior:"smooth"})})}
-{const b=document.createElement("button");b.type="button";b.id="mobileTaskB";b.textContent="Свернуть задание";b.setAttribute("aria-expanded","true");
+{if(mobile())document.body.classList.add("task-compact");const b=document.createElement("button");b.type="button";b.id="mobileTaskB";const cmp=document.body.classList.contains("task-compact");b.textContent=cmp?"Подсказки и маршрут":"Свернуть задание";b.setAttribute("aria-expanded",String(!cmp));
  $("repair").querySelector(".rp-head").appendChild(b);
- b.addEventListener("click",()=>{const compact=document.body.classList.toggle("task-compact");b.setAttribute("aria-expanded",String(!compact));b.textContent=compact?"Развернуть задание":"Свернуть задание"})}
+ b.addEventListener("click",()=>{const compact=document.body.classList.toggle("task-compact");b.setAttribute("aria-expanded",String(!compact));b.textContent=compact?"Подсказки и маршрут":"Свернуть задание"})}
 
 const _pick3=pick;pick=function(id,scroll){_pick3(id,scroll);if(mobile()&&document.body.dataset.mt!=="part")document.querySelector('#mtabs [data-m="part"]').classList.add("dot")};
 {const m=document.createElement("button");m.type="button";m.className="mini";m.id="mini";m.hidden=true;m.innerHTML='<span id="miniT"></span><b id="miniV"></b>';document.body.appendChild(m);
@@ -90,15 +90,12 @@ const _pick3=pick;pick=function(id,scroll){_pick3(id,scroll);if(mobile()&&docume
 setInterval(()=>{const m=$("mini");if(!mobile()||ms.tool==="hand"||document.body.dataset.mt==="tools"||!(ms.id||ms.trash)){m.hidden=true;return}
   m.hidden=false;$("miniT").textContent=($("mTool").textContent||"")+" · "+(ms.id||(ms.trash&&ms.trash.id)||"");$("miniV").textContent=$("mOsc").hidden?($("mV").textContent+" "+$("mU").textContent):"∿ сигнал"},300);
 /* ---------- шпаргалка ---------- */
-function checkAdvice(id){
-  const c=catOf(id);
-  if(["C","CP"].includes(c))return "После разрядки: ёмкость и ESR";
-  if(["R","L","FUSE","NTC","VAR","SW"].includes(c))return "При снятом питании: сопротивление и прозвонка";
-  if(["D","DZ","LED","BR"].includes(c))return "При снятом питании: проверка диодов";
-  if(["Q","BJT","TRIAC","PT","IC"].includes(c))return "Питание выводов, управляющий сигнал, КЗ";
-  if(c==="RELAY")return "Сопротивление катушки и контакты";
-  return "Напряжения на выводах, затем проверка детали"
-}
+const CHECK_BY_CAT={C:"разрядить, затем ёмкость и ESR",CP:"разрядить, затем ёмкость и ESR",R:"без питания: сопротивление",F:"прозвонка",TH:"без питания: сопротивление",RV:"без питания: сопротивление (норма OL)",
+  L:"сопротивление обмотки; межвитковое — сравнением с исправной",D:"режим диода в обе стороны",BD:"режим диода, каждый диод моста",LED:"режим диода, должен слабо светиться",
+  Q:"режим диода между выводами, затем сигнал на затворе / базе",TRI:"пробой — прозвонкой, работу — в схеме",IC:"питание на выводах, входные и выходные сигналы",OPT:"светодиод — режим диода, транзистор — в схеме",
+  RL:"сопротивление катушки и контакты",SW:"прозвонка нажатого и отпущенного",XT:"осциллограф на выводах",MG:"нить накала и пробой на корпус",MOT:"сопротивление обмотки",
+  CON:"осмотр и прозвонка контактов",BAT:"напряжение и внутреннее сопротивление",SPK:"сопротивление катушки"};
+function checkAdvice(id){return CHECK_BY_CAT[catOf(id)]||"напряжения на выводах, затем проверка детали"}
 function cheatHtml(){
   const rows={};
   Object.entries(P).forEach(([id,p])=>{
@@ -153,33 +150,12 @@ function statHtml(){
     missedHtml+`<div class="dgroup">По устройствам</div><div class="dgrid">`+per.map(({a,n,s,h})=>`<a class="dcard" href="${a.getAttribute("href")}"><span class="ic"><svg viewBox="0 0 26 26">${ICONS[a.dataset.icon]}</svg></span><b>${a.textContent}</b><small>${h.length} ремонтов${h.length?" · средний счёт "+Math.round(h.reduce((q,x)=>q+x.score,0)/h.length):""}</small><span class="pr"><i style="--p:${n?Math.round(s/n*100):0}%"></i>${s} из ${n}</span></a>`).join("")+`</div>`}
 $("statB").addEventListener("click",()=>openModal("Мой прогресс",statHtml()));
 /* ---------- компактная панель инструментов ---------- */
-function installQuickTools(){
-  const more=$("moreB").closest(".more");
-  const quick=document.createElement("div");quick.className="more quick-tools";
-  quick.innerHTML='<button type="button" id="quickB" aria-haspopup="true" aria-expanded="false">Инструменты</button><div class="pop" id="quickPop" hidden>'+
-   '<button type="button" data-quick="meter">Измерительные приборы</button>'+
-   '<button type="button" data-quick="thermal">Тепловизор</button>'+
-   '<button type="button" data-quick="lab">Лабораторный БП</button></div>';
-  more.before(quick);
-  const pop=$("quickPop"),btn=$("quickB");
-  // Переносим ИМЕННО существующие элементы: их обработчики событий сохраняются.
-  ["bLamp","bSnd"].forEach(id=>{const item=$(id);if(item)pop.appendChild(item)});
-  const speed=$("spd");if(speed&&speed.closest("label"))pop.appendChild(speed.closest("label"));
-  const close=()=>{pop.hidden=true;btn.setAttribute("aria-expanded","false")};
-  btn.addEventListener("click",e=>{e.stopPropagation();const open=pop.hidden;togglePop(false);pop.hidden=!open;btn.setAttribute("aria-expanded",String(open))});
-  pop.addEventListener("click",e=>{
-    const b=e.target.closest("[data-quick]");if(!b)return;
-    const kind=b.dataset.quick;
-    if(kind==="thermal")setTool("thermo");
-    else if(kind==="meter")setTool("dmm");
-    setTab(kind==="lab"?"tLab":"tTools");
-    if(mobile())setMt("tools");else document.querySelector(".side").scrollIntoView({block:"nearest"});
-    close()
-  });
-  document.addEventListener("click",e=>{if(!quick.contains(e.target))close()});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
-}
-installQuickTools();
+/* ---------- быстрые действия внутри «Ещё» ---------- */
+{const q=document.createElement("div");q.className="quick";
+ q.innerHTML='<span class="ql">Быстро открыть</span><div class="qrow"><button type="button" data-quick="dmm">Мультиметр</button><button type="button" data-quick="thermo">Тепловизор</button><button type="button" data-quick="lab">ЛБП</button></div>';
+ $("morePop").prepend(q);
+ q.addEventListener("click",e=>{const b=e.target.closest("[data-quick]");if(!b)return;const k=b.dataset.quick;
+   if(k==="lab")setTab("tLab");else setTool(k);if(mobile())setMt("tools");else document.querySelector(".side").scrollIntoView({block:"nearest"});togglePop(false)})}
 // Ссылка «тренировать» переносит к соответствующей задаче другой платы.
 addEventListener("load",()=>{
   const name=new URLSearchParams(location.search).get("train");if(!name)return;

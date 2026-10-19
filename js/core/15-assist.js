@@ -66,7 +66,7 @@ function healthy(){
   const out={key,node:{},wave:{},heat:{}};
   try{
     Object.assign(st,{F:{},sec:{},casc:{},later:{},inst:{},slot:{},fuse:false,surge:null,bug:false,rcd:false,ovp:false});
-    let now=performance.now();for(let i=0;i<300;i++){now+=20;sim(now,.02)}
+    const run=window.simRaw||sim;let now=performance.now();for(let i=0;i<300;i++){now+=20;run(now,.02)}
     const nodes=new Set();Object.values(PINS).forEach(pp=>pp.forEach(p=>nodes.add(p[1])));
     nodes.forEach(n=>{out.node[n]=NODE(n);try{const W=wave(n),a=[];for(let k=0;k<=120;k++)a.push(W.f(k/120));out.wave[n]={lo:W.lo,hi:W.hi,a}}catch(e){}});
     Object.keys(P).forEach(id=>{try{out.heat[id]=heatTarget(id)}catch(e){}});

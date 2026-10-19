@@ -459,31 +459,24 @@ body.exam .norm{display:none!important}
 @media (max-width:760px){#repair select,#scSel{width:100%;max-width:100%;min-width:0}.rp-head{display:grid;grid-template-columns:1fr 1fr}.rp-head h3,.rp-head select{grid-column:1/-1}.mini span{text-align:left}body{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}}
 
 /* v4: компактная панель, три мобильных раздела, интерактивные провода */
-.quick-tools .pop{min-width:260px}
-.quick-tools .pop .rng{justify-content:space-between}
-.quick-tools .pop .rng input{width:130px}
 .wire-hit{fill:none;stroke:transparent;stroke-width:14;pointer-events:stroke;cursor:pointer}
 #sch.hl .wire-hit{stroke:transparent!important}
 .train-link{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:8px;color:var(--fb);font-size:13px;font-weight:600;padding:7px 10px;white-space:nowrap}
 #mobileDevB,#mobileTaskB{display:none}
 @media (max-width:760px){
   #mtabs [data-m="dev"],#mtabs [data-m="task"]{display:none!important}
-  body[data-mt="board"] #repair:not([hidden]){display:block!important}
+  body[data-mt="board"] #repair:not([hidden]){display:grid!important}
   body[data-mt="board"] #repair[hidden]{display:none!important}
   body[data-mt="part"].show-device #devCard,
   body[data-mt="part"].show-device #logCard{display:block!important}
   #mobileDevB,#mobileTaskB{display:inline-block;margin-top:10px;font-size:12.5px}
   #mobileDevB{width:100%;background:var(--bg)}
   #mobileTaskB{margin:0;grid-column:1/-1}
-  body.task-compact #repair .complaint,
   body.task-compact #repair .rp-how,
   body.task-compact #repair .rp-act,
   body.task-compact #repair .hints,
   body.task-compact #repair .hist,
   body.task-compact #repair .win{display:none!important}
-  .quick-tools .pop{min-width:0}
-  .bar .quick-tools{order:8}
-  .bar .more:not(.quick-tools){order:9}
 }
 
 /* Дополнительные проверки и маршрут ремонта */
@@ -501,3 +494,25 @@ body.exam .norm{display:none!important}
 .route-actions button:first-child{background:var(--ink);color:var(--panel)}
 body.exam #routeB,body.exam #routePanel{display:none!important}
 @media(max-width:760px){.cheat{min-width:650px}.route-panel{padding:10px}}
+
+.quick{display:grid;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.quick .ql{font-size:11.5px;font-family:var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.qrow{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.qrow button{font-size:12.5px;padding:6px 4px}
+/* v4: пауза, тур, продолжение задач */
+.pauseb{min-width:38px;padding:7px 10px;font-size:15px;line-height:1}
+.pauseb[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:#fff}
+.pausetag{position:sticky;left:0;top:34px;z-index:3;margin:6px 10px -34px;width:max-content;max-width:calc(100% - 20px);background:var(--ac);color:#fff;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;box-shadow:0 4px 14px #0003}
+.tour{position:fixed;z-index:70;right:16px;bottom:16px;width:min(360px,calc(100vw - 32px));background:var(--ink);color:var(--panel);border-radius:14px;padding:14px 16px;box-shadow:0 18px 50px #0006}
+.tour b{font-family:var(--f-display);font-size:16px}.tour p{margin:6px 0 10px;font-size:14px;line-height:1.45}
+.tour .tstep{font-family:var(--f-mono);font-size:11px;opacity:.7}
+.tour .tact{display:flex;gap:8px;justify-content:flex-end}
+.tour .tact button{background:transparent;color:var(--panel);border-color:color-mix(in srgb,var(--panel) 40%,transparent)}
+.tour .tact button.on{background:var(--panel);color:var(--ink)}
+.tourhl{outline:3px solid var(--ac)!important;outline-offset:3px;border-radius:12px;position:relative;z-index:4}
+.dcard .resume{grid-column:1/-1;font-size:12px;font-weight:600;color:var(--ac)}
+kbd{font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px}
+.ncopy{width:100%;min-height:300px;font-family:var(--f-mono);font-size:12.5px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+#noteCopy{font-size:12.5px;padding:5px 10px;justify-self:start}
+@media (max-width:760px){.tour{left:8px;right:8px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px))}.pauseb{order:6}}
+.pauseb svg{width:14px;height:14px;fill:currentColor;display:block}
+.pop{max-height:min(75vh,620px);overflow:auto}
