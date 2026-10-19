@@ -65,9 +65,25 @@ const _setTool3=setTool;setTool=function(t){_setTool3(t);if(t!=="hand"&&$("tTool
 function tabBadges(){const tb=document.querySelector('[data-tab="tParts"]'),n=st.trash.length;tb.innerHTML="Замена"+(n?`<span class="cnt">${n}</span>`:"")}
 const _renderTrash3=renderTrash;renderTrash=function(){_renderTrash3();tabBadges()};tabBadges();
 /* ---------- мобильные вкладки ---------- */
-function setMt(m){document.body.dataset.mt=m;document.querySelectorAll("#mtabs button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.m===m));if(b.dataset.m===m)b.classList.remove("dot")});scrollTo({top:0})}
+function setMt(m){
+  // На телефоне остаются только три основных раздела. Задача живёт вместе со схемой.
+  m=m==="task"?"board":(m==="dev"?"part":m);
+  document.body.dataset.mt=m;
+  document.body.classList.remove("show-device");
+  const db=$("mobileDevB");if(db)db.setAttribute("aria-expanded","false");
+  document.querySelectorAll("#mtabs button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.m===m));if(b.dataset.m===m)b.classList.remove("dot")});
+  scrollTo({top:0})
+}
 document.querySelectorAll("#mtabs button").forEach(b=>b.addEventListener("click",()=>setMt(b.dataset.m)));
 document.body.dataset.mt="board";
+// Дополнительные данные устройства не потеряны: открываются из карточки детали.
+{const b=document.createElement("button");b.type="button";b.id="mobileDevB";b.textContent="Состояние устройства и журнал";b.setAttribute("aria-expanded","false");
+ $("partCard").appendChild(b);
+ b.addEventListener("click",()=>{const open=!document.body.classList.contains("show-device");document.body.classList.toggle("show-device",open);b.setAttribute("aria-expanded",String(open));if(open)$("devCard").scrollIntoView({block:"nearest",behavior:"smooth"})})}
+{const b=document.createElement("button");b.type="button";b.id="mobileTaskB";b.textContent="Свернуть задание";b.setAttribute("aria-expanded","true");
+ $("repair").querySelector(".rp-head").appendChild(b);
+ b.addEventListener("click",()=>{const compact=document.body.classList.toggle("task-compact");b.setAttribute("aria-expanded",String(!compact));b.textContent=compact?"Развернуть задание":"Свернуть задание"})}
+
 const _pick3=pick;pick=function(id,scroll){_pick3(id,scroll);if(mobile()&&document.body.dataset.mt!=="part")document.querySelector('#mtabs [data-m="part"]').classList.add("dot")};
 {const m=document.createElement("button");m.type="button";m.className="mini";m.id="mini";m.hidden=true;m.innerHTML='<span id="miniT"></span><b id="miniV"></b>';document.body.appendChild(m);
  m.addEventListener("click",()=>setMt("tools"))}
@@ -91,12 +107,65 @@ function statHtml(){
   const weak=[];fixed.forEach(s=>{const tries=h.filter(x=>x.t===s.t);if(!tries.length)return;const best=Math.max(...tries.map(x=>x.score));if(best<70)weak.push([s.t,best])});
   const todo=fixed.filter(s=>!h.some(x=>x.t===s.t)).slice(0,5);
   const grades=ex.map(x=>(x.ans.match(/оценка (\d)/)||[])[1]).filter(Boolean);
+  // Слабые места по всем устройствам, а не только по открытой плате.
+  const missed=[];
+  per.forEach(({a,h})=>{
+    const groups=new Map();
+    h.filter(x=>!x.rand&&x.t!=="Экзамен").forEach(x=>{
+      const entry=groups.get(x.t)||{t:x.t,total:0,miss:0};
+      entry.total++;
+      if(x.rev||x.hints>=2||x.score<70||x.wrong>0)entry.miss++;
+      groups.set(x.t,entry)
+    });
+    groups.forEach(v=>{if(v.miss)missed.push({...v,a})})
+  });
+  missed.sort((a,b)=>b.miss-a.miss||b.miss/b.total-a.miss/a.total);
+  const missedHtml=missed.length?
+    '<div class="dgroup">Чаще всего вызывают трудности</div><ul class="weak">'+
+    missed.slice(0,12).map(x=>'<li><span><b>'+x.t+'</b><small class="dim"> · '+x.a.textContent+' · сложностей '+x.miss+' из '+x.total+'</small></span>'+
+      (x.a.dataset.id===document.body.dataset.board?'<button type="button" data-rep="'+x.t.replace(/"/g,"&quot;")+'">Тренировать</button>':
+       '<a class="train-link" href="'+x.a.getAttribute("href")+'?train='+encodeURIComponent(x.t)+'">Тренировать</a>')+'</li>').join('')+'</ul>':
+    '<p class="dim">Когда накопятся попытки с ошибками или подсказками, здесь появятся слабые места по устройствам.</p>';
   return `<div class="kpis"><div class="kpi"><b>${sol} / ${tot}</b><span>задач решено на всех устройствах</span></div><div class="kpi"><b>${rep}</b><span>ремонтов всего</span></div>`+
     `<div class="kpi"><b>${rep?Math.round(sum/rep):"—"}</b><span>средний счёт</span></div><div class="kpi"><b>${grades.length?Math.max(...grades):"—"}</b><span>лучшая оценка за экзамен (${grades.length} экз.)</span></div></div>`+
     `<div class="dgroup">${BOARD.name}: стоит повторить</div>`+(weak.length?`<ul class="weak">${weak.map(([t,b])=>`<li><span>${t} <span class="dim">· лучший счёт ${b}</span></span><button type="button" data-rep="${t}">Повторить</button></li>`).join("")}</ul>`:`<p class="dim">Здесь появятся задачи, где понадобились ответ или много подсказок.</p>`)+
     (todo.length?`<div class="dgroup">Ещё не решали</div><ul class="weak">${todo.map(s=>`<li><span>${s.t}</span><button type="button" data-rep="${s.t}">Начать</button></li>`).join("")}</ul>`:"")+
-    `<div class="dgroup">По устройствам</div><div class="dgrid">`+per.map(({a,n,s,h})=>`<a class="dcard" href="${a.getAttribute("href")}"><span class="ic"><svg viewBox="0 0 26 26">${ICONS[a.dataset.icon]}</svg></span><b>${a.textContent}</b><small>${h.length} ремонтов${h.length?" · средний счёт "+Math.round(h.reduce((q,x)=>q+x.score,0)/h.length):""}</small><span class="pr"><i style="--p:${n?Math.round(s/n*100):0}%"></i>${s} из ${n}</span></a>`).join("")+`</div>`}
+    missedHtml+`<div class="dgroup">По устройствам</div><div class="dgrid">`+per.map(({a,n,s,h})=>`<a class="dcard" href="${a.getAttribute("href")}"><span class="ic"><svg viewBox="0 0 26 26">${ICONS[a.dataset.icon]}</svg></span><b>${a.textContent}</b><small>${h.length} ремонтов${h.length?" · средний счёт "+Math.round(h.reduce((q,x)=>q+x.score,0)/h.length):""}</small><span class="pr"><i style="--p:${n?Math.round(s/n*100):0}%"></i>${s} из ${n}</span></a>`).join("")+`</div>`}
 $("statB").addEventListener("click",()=>openModal("Мой прогресс",statHtml()));
+/* ---------- компактная панель инструментов ---------- */
+function installQuickTools(){
+  const more=$("moreB").closest(".more");
+  const quick=document.createElement("div");quick.className="more quick-tools";
+  quick.innerHTML='<button type="button" id="quickB" aria-haspopup="true" aria-expanded="false">Инструменты</button><div class="pop" id="quickPop" hidden>'+
+   '<button type="button" data-quick="meter">Измерительные приборы</button>'+
+   '<button type="button" data-quick="thermal">Тепловизор</button>'+
+   '<button type="button" data-quick="lab">Лабораторный БП</button></div>';
+  more.before(quick);
+  const pop=$("quickPop"),btn=$("quickB");
+  // Переносим ИМЕННО существующие элементы: их обработчики событий сохраняются.
+  ["bLamp","bSnd"].forEach(id=>{const item=$(id);if(item)pop.appendChild(item)});
+  const speed=$("spd");if(speed&&speed.closest("label"))pop.appendChild(speed.closest("label"));
+  const close=()=>{pop.hidden=true;btn.setAttribute("aria-expanded","false")};
+  btn.addEventListener("click",e=>{e.stopPropagation();const open=pop.hidden;togglePop(false);pop.hidden=!open;btn.setAttribute("aria-expanded",String(open))});
+  pop.addEventListener("click",e=>{
+    const b=e.target.closest("[data-quick]");if(!b)return;
+    const kind=b.dataset.quick;
+    if(kind==="thermal")setTool("thermo");
+    else if(kind==="meter")setTool("dmm");
+    setTab(kind==="lab"?"tLab":"tTools");
+    if(mobile())setMt("tools");else document.querySelector(".side").scrollIntoView({block:"nearest"});
+    close()
+  });
+  document.addEventListener("click",e=>{if(!quick.contains(e.target))close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+}
+installQuickTools();
+// Ссылка «тренировать» переносит к соответствующей задаче другой платы.
+addEventListener("load",()=>{
+  const name=new URLSearchParams(location.search).get("train");if(!name)return;
+  const i=SCEN.findIndex(s=>!s.rand&&s.t===name);
+  if(i>=0){if(!game.on)setMode(true);$("scSel").value=i;startScenario(i);if(mobile())setMt("board")}
+});
 /* ---------- установка как приложение ---------- */
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!/claude|usercontent/.test(location.hostname)){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 syncSeg();
