@@ -457,3 +457,31 @@ body.exam .norm{display:none!important}
 .cheat .chip em{font-style:normal;color:var(--muted)}
 .wrap>*{min-width:0}
 @media (max-width:760px){#repair select,#scSel{width:100%;max-width:100%;min-width:0}.rp-head{display:grid;grid-template-columns:1fr 1fr}.rp-head h3,.rp-head select{grid-column:1/-1}.mini span{text-align:left}body{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}}
+
+/* v4: компактная панель, три мобильных раздела, интерактивные провода */
+.quick-tools .pop{min-width:260px}
+.quick-tools .pop .rng{justify-content:space-between}
+.quick-tools .pop .rng input{width:130px}
+.wire-hit{fill:none;stroke:transparent;stroke-width:14;pointer-events:stroke;cursor:pointer}
+#sch.hl .wire-hit{stroke:transparent!important}
+.train-link{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:8px;color:var(--fb);font-size:13px;font-weight:600;padding:7px 10px;white-space:nowrap}
+#mobileDevB,#mobileTaskB{display:none}
+@media (max-width:760px){
+  #mtabs [data-m="dev"],#mtabs [data-m="task"]{display:none!important}
+  body[data-mt="board"] #repair:not([hidden]){display:block!important}
+  body[data-mt="board"] #repair[hidden]{display:none!important}
+  body[data-mt="part"].show-device #devCard,
+  body[data-mt="part"].show-device #logCard{display:block!important}
+  #mobileDevB,#mobileTaskB{display:inline-block;margin-top:10px;font-size:12.5px}
+  #mobileDevB{width:100%;background:var(--bg)}
+  #mobileTaskB{margin:0;grid-column:1/-1}
+  body.task-compact #repair .complaint,
+  body.task-compact #repair .rp-how,
+  body.task-compact #repair .rp-act,
+  body.task-compact #repair .hints,
+  body.task-compact #repair .hist,
+  body.task-compact #repair .win{display:none!important}
+  .quick-tools .pop{min-width:0}
+  .bar .quick-tools{order:8}
+  .bar .more:not(.quick-tools){order:9}
+}
