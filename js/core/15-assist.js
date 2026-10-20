@@ -51,7 +51,8 @@ wires.forEach(w=>{
   const hit=el("path",{"d":w.base.getAttribute("d"),"class":"wire-hit","aria-label":"Подсветить цепь "+w.net},w.base.parentNode);
   hit.addEventListener("click",e=>{e.stopPropagation();highlightNet(w.net)});
 });
-const _pick4=pick;pick=function(id,scroll){_pick4(id,scroll);highlight(id)};
+let userActT=0;["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{userActT=performance.now()},true));
+const _pick4=pick;pick=function(id,scroll){_pick4(id,scroll);if(performance.now()-userActT<800||scroll)highlight(id);else highlight(null)};
 document.addEventListener("opt",e=>{if(e.detail==="hl")highlight(sel)});
 $("board").addEventListener("click",e=>{if(e.target===svg||e.target.classList.contains("prect"))highlight(null)});
 function flashPart(id){(parts[id]||[]).forEach(p=>{p.G.classList.remove("flash");void p.G.getBBox();p.G.classList.add("flash");setTimeout(()=>p.G.classList.remove("flash"),1600)})}
@@ -131,7 +132,6 @@ const _renderGame4=renderGame;
 renderGame=function(){_renderGame4();const h=$("hints");[...h.children].forEach(li=>{li.innerHTML=linkify(">"+li.innerHTML.replace(/^<b>Подсказка \d+\.<\/b>\s*/,"")+"<").slice(1,-1)})};
 $("hints").addEventListener("click",e=>{const b=e.target.closest(".pref");if(b){if(mobile())setMt("board");pick(b.dataset.id,true);flashPart(b.dataset.id)}});
 if(game.on)renderGame();
-if(sel)highlight(sel);
 
 /* ---------- интерактивный универсальный маршрут диагностики ---------- */
 const ROUTE_STEPS={

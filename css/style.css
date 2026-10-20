@@ -493,7 +493,7 @@ body.exam .norm{display:none!important}
 .route-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .route-actions button:first-child{background:var(--ink);color:var(--panel)}
 body.exam #routeB,body.exam #routePanel{display:none!important}
-@media(max-width:760px){.cheat{min-width:650px}.route-panel{padding:10px}}
+@media(max-width:760px){.route-panel{padding:10px}}
 
 .quick{display:grid;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .quick .ql{font-size:11.5px;font-family:var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
@@ -516,3 +516,26 @@ kbd{font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px s
 @media (max-width:760px){.tour{left:8px;right:8px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px))}.pauseb{order:6}}
 .pauseb svg{width:14px;height:14px;fill:currentColor;display:block}
 .pop{max-height:min(75vh,620px);overflow:auto}
+/* индукционная плита */
+.screen.icbox{background:#e9ecef;padding:4px}.icbox svg{width:100%;height:100%}
+.icg{fill:#15181c}.icz{fill:none;stroke:color-mix(in srgb,#ff6a3d calc(var(--g)*100%),#555);stroke-width:2.5}
+.icp{fill:#7d858e;stroke:#aab}.icw{opacity:.85}.icst{fill:none;stroke:#cfd8df;stroke-width:1.2}.icf{stroke:#aaa;stroke-width:2}
+/* модальное окно: прокрутка на телефоне, шпаргалка карточками */
+.modbox{min-width:0;overflow:hidden}
+.modb{min-width:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.modb table{max-width:100%}
+@media (max-width:760px){
+  .modal{padding:0;place-items:stretch}
+  .modbox{width:100%;max-height:100dvh;height:100dvh;border-radius:0}
+  .modh{padding:calc(12px + env(safe-area-inset-top,0px)) 14px 10px}
+  .modb{padding:12px 14px calc(24px + env(safe-area-inset-bottom,0px))}
+  .cheat,.cheat tbody,.cheat tr,.cheat td{display:block;width:100%}
+  .cheat thead{display:none}
+  .cheat tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+  .cheat td{border:0;padding:3px 0;max-width:none!important;width:auto!important;overflow-wrap:anywhere}
+  .cheat td.check-col::before{content:"Что измерить: ";font-weight:600;color:var(--ink)}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+.navback{display:none}
+@media (max-width:760px){.navback{display:inline-flex;align-items:center;gap:4px;padding:6px 10px}.navback[hidden]{display:none}}
+.swipehint{position:fixed;left:0;top:50%;z-index:80;width:44px;height:44px;margin-top:-22px;border-radius:0 22px 22px 0;background:var(--ink);color:var(--panel);display:grid;place-items:center;font-size:22px;pointer-events:none;opacity:0;transform:translateX(-44px);transition:opacity .1s}
