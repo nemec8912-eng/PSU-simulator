@@ -539,3 +539,16 @@ kbd{font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px s
 .navback{display:none}
 @media (max-width:760px){.navback{display:inline-flex;align-items:center;gap:4px;padding:6px 10px}.navback[hidden]{display:none}}
 .swipehint{position:fixed;left:0;top:50%;z-index:80;width:44px;height:44px;margin-top:-22px;border-radius:0 22px 22px 0;background:var(--ink);color:var(--panel);display:grid;place-items:center;font-size:22px;pointer-events:none;opacity:0;transform:translateX(-44px);transition:opacity .1s}
+/* холодильник */
+.screen.frbox{background:#e9ecef;padding:4px}.frbox svg{width:100%;height:100%}
+.frb{fill:#f7f9fb;stroke:#9aa5b1;stroke-width:1.2}.frz{fill:#cfe6ff;stroke:#9aa5b1}.frc{stroke:#9aa5b1}.frice{fill:#fff;stroke:#b9d6f0}
+.frf{stroke:#5b6b7a;stroke-width:2}.frh{stroke:#ff6a3d;stroke-width:2.2;stroke-dasharray:3 2}
+/* ноутбук */
+.screen.lpbox{background:#e9ecef;padding:4px}.lpbox svg{width:100%;height:100%}
+.lpl{fill:#2a3038}.lps{transition:fill .3s}.lpw{fill:#9fd0ff}.lpt{fill:#9fb3c6;font-size:10px;text-anchor:middle}.lpb{fill:#5a6470}
+.lpbat{fill:none;stroke:#555;stroke-width:1.4}.lpfill{opacity:.9}.lpx{stroke:#e53935;stroke-width:2}.lpz{fill:#ffd23c;stroke:#333;stroke-width:.6}
+.led i.amber{background:#ff9a3c;border-color:#ff9a3c;box-shadow:0 0 8px #ff9a3c}
+/* кондиционер */
+.screen.acbox{background:#e9ecef;padding:4px}.acbox svg{width:100%;height:100%}
+.aci{fill:#f7f9fb;stroke:#9aa5b1;stroke-width:1.2}.acv{stroke:#9aa5b1;stroke-width:1.5}.acair{fill:none;stroke:#6ab0ff;stroke-width:1.3}
+.aco{fill:#dfe4ea;stroke:#8a96a3}.acfan{fill:#c9d1d9;stroke:#8a96a3}.acbl{stroke:#55606c;stroke-width:2.2}

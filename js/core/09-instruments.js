@@ -18,6 +18,7 @@ function diodeVf(l){if(/SR\d|MBR|STPS|1N5819|Шоттки/.test(l))return .21;if
 /* passive reading of a physical part (power off) */
 function passive(p,tool,mode){
   const {cat,label,mode:f}=p,r=(v,u,n)=>({v,u,n:n||""});
+  if(typeof boardPassive==="function"){const q=boardPassive(p,tool,mode,r);if(q)return q}
   if(tool==="esr"){
     if(!["C","CP"].includes(cat))return r("—","","ESR-метр проверяет только конденсаторы.");
     if(f==="short")return r("0,00","Ω","Короткое замыкание внутри конденсатора.");
@@ -44,7 +45,7 @@ function passive(p,tool,mode){
     if(cat==="IC")return /TL43/.test(label)?r("0,7","В","Тестер видит диод 0,7 В между анодом и катодом. TL431 полностью проверяется только в схеме."):r("—","","Микросхему тестер не проверит. Проверяйте напряжения на выводах при включённом блоке.");
     if(cat==="L")return r(...fmtR(windR(p.id)),"Тестер: катушка, сопротивление обмотки.");
     if(cat==="F")return r("0,1","Ω","Тестер: проводник 0,1 Ω — предохранитель цел.");
-    if(cat==="TH")return r(/0,5/.test(label)?"0,5":"5,0","Ω","Тестер: резистор"+(/PTC/.test(label)?" (это позистор, его сопротивление растёт при нагреве)":"")+".");
+    if(cat==="TH")return r(...fmtR(ohm(label)||(/0,5/.test(label)?.5:5)),"Тестер: резистор"+(/PTC/.test(label)?" (это позистор, его сопротивление растёт при нагреве)":"")+".");
     if(cat==="RV")return r("??","","Варистор тестер не распознаёт: при низком напряжении он не проводит.");
     if(cat==="BD")return r("4×Д","","Тестер: 4 диода по 0,55 В — мост исправен.");
     if(cat==="SW"||cat==="MG"||cat==="MOT")return r("—","","Такую деталь тестер не проверяет — прозвоните её мультиметром.");
@@ -79,7 +80,7 @@ function passive(p,tool,mode){
   else if(cat==="MOT")x=windR(p.id);
   else if(cat==="CON"){x=.05;note=" Контакты разъёма звонятся. Проверьте и соседние контакты на замыкание."}
   else if(cat==="BAT"){return r("—","","Сопротивление аккумулятора омметром не мерят — измерьте напряжение или проверьте тестером.")}
-  else if(cat==="F")x=.1;else if(cat==="TH")x=/0,5/.test(label)?.5:4.8;else if(cat==="L")x=windR(p.id);
+  else if(cat==="F")x=.1;else if(cat==="TH")x=ohm(label)||(/0,5/.test(label)?.5:4.8);else if(cat==="L")x=windR(p.id);
   else if(cat==="C"||cat==="CP"){x=Infinity;note=" Показания сначала растут — конденсатор заряжается от прибора — затем OL."}
   else x=Infinity;
   if(cat==="IC"&&f!=="short"&&!/TL43/.test(label))return r("—","","Сопротивления между выводами микросхемы мало что скажут. Проверяйте напряжения на выводах при включённом блоке.");
